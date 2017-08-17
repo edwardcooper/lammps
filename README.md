@@ -1,1 +1,3 @@
-# This is for storing different bash and R files when using lammps for molecular dynamics simulation.
+# Shell and R codes for post data analysis on using lammps for molecular dynamics simulation.
+
+
