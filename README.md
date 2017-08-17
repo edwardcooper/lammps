@@ -1,3 +1,3 @@
-# Shell and R codes for post data analysis on using lammps for molecular dynamics simulation.
+# Shell and R codes for data analysis on lammps.
 
 
