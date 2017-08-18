@@ -1,48 +1,97 @@
-# read in data from the log file to examine the results 
+########################################################################################
+# The spread function from tidyr gives me an error "Error: C stack usage  25955701 is too close to the limit".
+# I have not been able to debug the problem. So I will have to write my own R function to do it.
 
-tvp_data=function(file="tvp.csv"){
-  tvp=read.table(file)
+
+
+# This function mimics the usage of spread function,
+# which convert a dataset with a long format into a wide format.
+
+# This function only works with a two-column-data case
+# where the first column is the name of the variable, second column is the value of the variable.
+
+# for more details concerning what is spread and gather function in tidyr, please refer to http://r4ds.had.co.nz/tidy-data.html#spreading-and-gathering
+
+
+
+
+
+long_to_wide=function(dataset){
   
+  # change the colnames of dataset for easier manipulation.
+  colnames(dataset)=c("property","value")
   
-  colnames(tvp)=c("property","value")
+  # Find out all the available values in the dataset.
+  dataset_avail=table(dataset$property)%>%as.data.frame()
   
-  library(dplyr)
-  t=tvp%>%filter(property=="Temp")
+  # extract the names and convert it into characters vector.
+  names=dataset_avail$Var1%>%as.character()
   
-  
-  
-  p=tvp%>%filter(property=="Press")
-  
-  v=tvp%>%filter(property=="Volume")
-  
-  table(tvp$property)%>%print()
-  
-  tvp=cbind(timestep=1:(dim(t)[1]), temperature=t$value, pressure=p$value,volume=v$value)
-  
-  tvp=tvp%>%as.data.frame()
-  
-  return(tvp)
+  # I use foreach here to allow parallel processing if necessary in the future.
+  library(foreach)
+  dataset=foreach(i=1:length(names),.combine = cbind, .packages = "dplyr" )%do%{
+    
+    #column_value=dataset%>%filter(property==names[i])
+    column_value=dataset%>%filter(property==names[i])%>%select(value)
+    return(column_value)
   }
+  
+  colnames(dataset)=names
+  dataset=cbind(timestep=1:dim(dataset)[1],dataset)
+  gc()
+  return(dataset)
 
-tvp_plot=function(file="tvp.csv"){
-  tvp=tvp_data(file)
+}
+
+# log=read.table("log.csv")
+# # This is an example of how to use this function
+# log=log%>%long_to_wide()
+# 
+# head(log)
+# colnames(log)
+
+# I will try to extend its functionality if necessary in the future.
+
+#########################################################################
+# read in dataset from the log file to examine the results 
+
+
+
+log_plot=function(file="log.csv"){
+  # read in the data
+  log=read.table(file)
+  print("Finished loading data.")
+  log=log%>%long_to_wide()
+  print("Finished converting data to wide format.")
   
   library(ggplot2)
   
-  p1=tvp%>%ggplot()+geom_line(aes(x=timestep,y=temperature),color="blue")
-  p2=tvp%>%ggplot()+geom_line(aes(x=timestep,y=pressure),color="red")
+  p1=log%>%ggplot()+geom_line(aes(x=timestep,y=Temp),color="blue")
+  p2=log%>%ggplot()+geom_line(aes(x=timestep,y=Press),color="green")
   
+  p3=log%>%ggplot()+geom_line(aes(x=timestep,y=KinEng),color="orange")
+  p4=log%>%ggplot()+geom_line(aes(x=timestep,y=PotEng),color="red")
+  p5=log%>%ggplot()+geom_line(aes(x=timestep,y=TotEng),color="black")
   
+  print("Finished plotting separate graphs")
   library(grid)
   grid.newpage()
-  plot=grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "first"))
-  return(plot)
+  plot1=grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "first"))
+  
+  
+  grid.newpage()
+  plot2=grid.draw(rbind(ggplotGrob(p3), ggplotGrob(p4),ggplotGrob(p5), size = "first"))
+  
+  gc()
+  return(print("Finished plotting"))
 }
 
-tvp_plot(file="tvp320solomon.csv")
-tvp_plot(file="tvp345solomon.csv")
-tvp_plot(file="tvp320Sbond.csv")
-tvp_plot(file="tvp320Rbond.csv")
+log_plot("log.csv")
 
-# data=tvp_data(file="tvp320Rbond.csv")
-# head(data)
+# log_plot(file="tvp320solomon.csv")
+# log_plot(file="tvp345solomon.csv")
+# log_plot(file="tvp320Sbond.csv")
+# log_plot(file="tvp320Rbond.csv")
+
+
+
