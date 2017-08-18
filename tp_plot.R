@@ -86,12 +86,11 @@ log_plot=function(file="log.csv"){
   return(print("Finished plotting"))
 }
 
-log_plot("log.csv")
-
-# log_plot(file="tvp320solomon.csv")
-# log_plot(file="tvp345solomon.csv")
-# log_plot(file="tvp320Sbond.csv")
-# log_plot(file="tvp320Rbond.csv")
 
 
 
+log_plot("log_mini.csv")
+log_plot("log_npt.csv")
+log_plot("log_npt_noS.csv")
+log_plot("log320_solomon.csv")
+log_plot("log345_solomon.csv")
