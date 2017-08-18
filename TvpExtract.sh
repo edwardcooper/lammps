@@ -15,7 +15,7 @@ if test -e log.lammps
 		grep "TotEng" log.lammps | tr "K" "\n" | grep "TotEng" | replace "=" "" >> log.csv
 		echo "Finish scraping total energy"
 		
-		grep "PotEng" log.lammps | replace "E_bond" "This" | tr "This" "\n" | grep "TotEng" | replace "=" "" >>log.csv 
+		grep "PotEng" log.lammps | replace "E_bond" "This" | tr "This" "\n" | grep "PotEng" | replace "=" "" >>log.csv 
 		echo "Finish scraping potential energy."
 
 		grep KinEng log.lammps | tr "Temp" "\n" | tr "K" "\n" | grep inEng | replace "inEng" "KinEng" | replace "=" "" >> log.csv 
