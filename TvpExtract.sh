@@ -3,10 +3,18 @@ if test -e log.lammps
 	then 
                 echo "Start scraping for relevent data."
 
+		#########################################################
+		# scrape the data
 		grep "Temp" log.lammps | tr "T" "\n" | grep emp | replace emp Temp | replace "=" "" > log.csv
-		echo "Finish scraping Temperature"
-
-		grep Volume log.lammps | tr "=" " " >> log.csv
+		# test if the data is indeed scraped
+		if test -n $(grep "Temp" log.csv | wc -l )
+		then
+		  echo "Scraped temperature data."
+		else 	
+		  echo "Temperature data not scraped."
+		fi 
+		##########################################################
+		grep Volume log.lammps | tr "=" " " >> log.csv		
 		echo "Finish scraping volume."
 
 		grep "Press"  log.lammps | tr "P" "\n" | grep ress | replace ress Press | replace "=" "" >> log.csv
