@@ -13,6 +13,7 @@
 # for more details concerning what is spread and gather function in tidyr, please refer to http://r4ds.had.co.nz/tidy-data.html#spreading-and-gathering
 
 
+library(magrittr)
 
 
 
