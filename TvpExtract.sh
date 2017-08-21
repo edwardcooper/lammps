@@ -62,6 +62,8 @@ if test -e log.lammps
 		  echo "Kinetic energy data not scraped."
 		fi 
 		##########################################################
+		echo "The total time used is $SECONDS."
+		echo "The size of the scraped file is $(du -sh log.csv | tr "log.csv" "\n" | grep K)" 
 	else 
 		echo "The file log.lammps is not here."
 fi
