@@ -42,20 +42,19 @@ colnames(log)
 
 
 
-#var_num=dim(log_data)[2]-1
 
-test=fractal::stationarity(log_data[,2],n.block = 10)
-summary(test)
 
-tseries::adf.test(log_data[,2])
-tseries::kpss.test(log_data[,2])
-tseries::pp.test(log_data[,2])
+fractal::stationarity(log_data[,2],n.block = 10)
 
-stats::PP.test(log_data[,2])
+tseries::adf.test(log_data[,2]) # alternate hypothesis: stationary
+tseries::kpss.test(log_data[,2],null="Level") # null hypothesis: level or trend stationary
+tseries::pp.test(log_data[,2]) # alternate hypothesis: stationary
 
-aTSA::adf.test(log_data[,2])
-aTSA::pp.test(log_data[,2])
-aTSA::kpss.test(log_data[,2])
+stats::PP.test(log_data[,2]) #null hypothesis: x has a unit root. alternative:stationary .
+
+aTSA::adf.test(log_data[,2]) #null hypothesis of a unit root. Alternate: stationary. # kind of strange result
+aTSA::pp.test(log_data[,2]) #null hypothesis of a unit root. Alternate: stationary. # correct with respect to tseries package.
+aTSA::kpss.test(log_data[,2]) #null hypothesis:stationary. alternative: nonstationary #strange result. 
 
 
 # This takes a very very long time. 
