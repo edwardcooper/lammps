@@ -1,3 +1,6 @@
 # This is my todo list, which will be updated everyday. 
 
 # tomorrow's work:* Do stationarity test,** run the NVT calculation  
+
+# Wednesday's work: unknown yet. * add message/labelling and emailing to the current R code. ** add Boston housing price code to the github. 
+
