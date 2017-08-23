@@ -57,8 +57,8 @@ aTSA::pp.test(log_data[,2]) #null hypothesis of a unit root. Alternate: stationa
 aTSA::kpss.test(log_data[,2]) #null hypothesis:stationary. alternative: nonstationary #strange result. 
 
 
-# This takes a very very long time. 
-# urca::ur.za(log[,2])
+# This takes a very very long time. Plus, there is only test statistic and no p value. 
+urca::ur.za(log[,2])
 
 # It would be best avoid this method since it has some length restrictions.
 # library(locits)
