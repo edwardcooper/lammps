@@ -58,7 +58,7 @@ aTSA::kpss.test(log_data[,2]) #null hypothesis:stationary. alternative: nonstati
 
 
 # This takes a very very long time. Plus, there is only test statistic and no p value. 
-urca::ur.za(log[,2])
+# urca::ur.za(log[,2])
 
 # It would be best avoid this method since it has some length restrictions.
 # library(locits)
