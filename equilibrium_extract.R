@@ -1,5 +1,43 @@
 # The purpose of this function is to get the part of simulation that is in equilibrium from the energies, temperatures and etc. 
 
+library(magrittr)
+
+
+
+long_to_wide=function(dataset){
+  
+  # change the colnames of dataset for easier manipulation.
+  colnames(dataset)=c("property","value")
+  
+  # Find out all the available values in the dataset.
+  dataset_avail=table(dataset$property)%>%as.data.frame()
+  
+  # extract the names and convert it into characters vector.
+  names=dataset_avail$Var1%>%as.character()
+  
+  # I use foreach here to allow parallel processing if necessary in the future.
+  library(foreach)
+  dataset=foreach(i=1:length(names),.combine = cbind, .packages = "dplyr" )%do%{
+    
+    #column_value=dataset%>%filter(property==names[i])
+    column_value=dataset%>%filter(property==names[i])%>%select(value)
+    return(column_value)
+  }
+  
+  colnames(dataset)=names
+  dataset=cbind(timestep=1:dim(dataset)[1],dataset)
+  gc()
+  return(dataset)
+  
+}
+
+
+#################################################
+# main function in this script
+
+
+
+
 # Could only chosee alpha in (0.01, 0.1)
 equilibrium_extract=function(data, del_num=10,alpha=0.05){
   # do the statistical test on the data
@@ -18,6 +56,7 @@ equilibrium_extract=function(data, del_num=10,alpha=0.05){
   if(!non_stationary){
     
     result_data=data
+    plot(result_data,main="Entire stationary data")
     print("This data is stationary")
   }else if (non_stationary){
     
@@ -27,16 +66,24 @@ equilibrium_extract=function(data, del_num=10,alpha=0.05){
       data=data[-del_num]
       test_fractal=fractal::stationarity(data)
       p_value=attr(test_fractal,"pvals")[1]
-      non_stationary=p_value>alpha
+      non_stationary=p_value<alpha
     }
     
     result_data=data
-    print("The length of the data is", length(data))
+    plot(result_data,main="stationary part")
+    #print("The length of the data is", length(data))
   }
   gc()
+  
   return(result_data)
 }
 
+# test use
+#rnorm(100)%>%equilibrium_extract()
 
-rnorm(100)%>%equilibrium_extract()
-
+log_data=read.table("log_npt.csv")
+log_data=log_data%>%long_to_wide()
+colnames(log_data)
+KinEng_eq=log_data[,2]%>%equilibrium_extract(alpha=0.011)
+test_kinEng=fractal::stationarity(KinEng_eq)
+attr(test_kinEng,"pvals")[1]>0.05
