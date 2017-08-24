@@ -69,7 +69,7 @@ P_value_rnorm=function(num_test=10,num_sample=1000){
 
 
 
-
+# Extend the scope of the test. Different distributions and ARMA models. 
 
 
 
@@ -131,8 +131,8 @@ power_of_test=function(data,alpha=0.05){
 
 # Extend the functionality of power_of_test to use ture_value and p value to get the power of test. 
 # The function here is not exactly a power of test, which is 1-beta, but a test of different tests to distinguish the stationarity. 
-library(magrittr)
-
-power_test=P_value_rnorm(num_test=1000,num_sample=1000)%>%power_of_test(alpha=0.02)
-
-power_test
+# library(magrittr)
+# 
+# power_test=P_value_rnorm(num_test=1000,num_sample=1000)%>%power_of_test(alpha=0.02)
+# 
+# power_test
