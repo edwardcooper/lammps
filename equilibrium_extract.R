@@ -63,12 +63,13 @@ equilibrium_extract=function(data, del_num=1000,alpha=0.05){
     # while non_stationary is 
     while(non_stationary){
       del_index=seq(from=1,to=del_num,by=1)
-      print(length(del_index))
+      #print(length(del_index))
       data<-data[-del_index]
       test_fractal=fractal::stationarity(data)
       p_value=attr(test_fractal,"pvals")[1]
+      print(p_value)
       non_stationary=p_value<alpha
-      print(length(data))
+      #print(length(data))
     }
     
     result_data=data
@@ -82,11 +83,25 @@ equilibrium_extract=function(data, del_num=1000,alpha=0.05){
 
 # test use
 #rnorm(100)%>%equilibrium_extract()
-
+library(beepr)
 log_data=read.table("log_npt.csv")
 log_data=log_data%>%long_to_wide()
 colnames(log_data)
-KinEng_eq=log_data[,2]%>%equilibrium_extract(alpha=0.011,del_num = 10000)
+
+PotEng_eq=log_data[,3]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
+print("This is Potential energy data")
+Press_eq=log_data[,4]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
+print("This is pressure data.")
+beep(8)
+Temp_eq=log_data[,5]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
+print("This is temperature data.")
+beep(8)
+TotEng_eq=log_data[,6]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # stationary 
+print("This is total energy data")
+beep(8)
+Volume_eq=log_data[,7]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
+print("This is volume data")
+beep(8)
 # test_kinEng=fractal::stationarity(KinEng_eq)
 # attr(test_kinEng,"pvals")[1]>0.05
 
