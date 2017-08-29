@@ -39,7 +39,7 @@ long_to_wide=function(dataset){
 
 
 # Could only chosee alpha in (0.01, 0.1)
-equilibrium_extract=function(data, del_num=10,alpha=0.05){
+equilibrium_extract=function(data, del_num=1000,alpha=0.05){
   # do the statistical test on the data
   test_fractal=fractal::stationarity(data) #null hypothesis: stationary. 
   # extract the p value. 
@@ -62,11 +62,13 @@ equilibrium_extract=function(data, del_num=10,alpha=0.05){
     
     # while non_stationary is 
     while(non_stationary){
-      del_index=1:del_num
-      data=data[-del_num]
+      del_index=seq(from=1,to=del_num,by=1)
+      print(length(del_index))
+      data<-data[-del_index]
       test_fractal=fractal::stationarity(data)
       p_value=attr(test_fractal,"pvals")[1]
       non_stationary=p_value<alpha
+      print(length(data))
     }
     
     result_data=data
@@ -84,6 +86,7 @@ equilibrium_extract=function(data, del_num=10,alpha=0.05){
 log_data=read.table("log_npt.csv")
 log_data=log_data%>%long_to_wide()
 colnames(log_data)
-KinEng_eq=log_data[,2]%>%equilibrium_extract(alpha=0.011)
-test_kinEng=fractal::stationarity(KinEng_eq)
-attr(test_kinEng,"pvals")[1]>0.05
+KinEng_eq=log_data[,2]%>%equilibrium_extract(alpha=0.011,del_num = 10000)
+# test_kinEng=fractal::stationarity(KinEng_eq)
+# attr(test_kinEng,"pvals")[1]>0.05
+
