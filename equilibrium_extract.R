@@ -25,7 +25,7 @@ long_to_wide=function(dataset){
   }
   
   colnames(dataset)=names
-  dataset=cbind(timestep=1:dim(dataset)[1],dataset)
+  #dataset=cbind(timestep=1:dim(dataset)[1],dataset)
   gc()
   return(dataset)
   
@@ -39,7 +39,7 @@ long_to_wide=function(dataset){
 
 
 # Could only chosee alpha in (0.01, 0.1)
-equilibrium_extract=function(data, del_num=1000,alpha=0.05){
+st_extract_spectra=function(data, del_num=1000,alpha=0.05){
   # do the statistical test on the data
   test_fractal=fractal::stationarity(data) #null hypothesis: stationary. 
   # extract the p value. 
@@ -82,26 +82,96 @@ equilibrium_extract=function(data, del_num=1000,alpha=0.05){
 }
 
 # test use
-#rnorm(100)%>%equilibrium_extract()
+#rnorm(100)%>%st_extract_spectra()
+###############################################################################
+
 library(beepr)
 log_data=read.table("log_npt.csv")
 log_data=log_data%>%long_to_wide()
 colnames(log_data)
 
-PotEng_eq=log_data[,3]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
-print("This is Potential energy data")
-Press_eq=log_data[,4]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
-print("This is pressure data.")
-beep(8)
-Temp_eq=log_data[,5]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
-print("This is temperature data.")
-beep(8)
-TotEng_eq=log_data[,6]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # stationary 
-print("This is total energy data")
-beep(8)
-Volume_eq=log_data[,7]%>%equilibrium_extract(alpha=0.05,del_num = 10000) # not stationary
-print("This is volume data")
-beep(8)
-# test_kinEng=fractal::stationarity(KinEng_eq)
-# attr(test_kinEng,"pvals")[1]>0.05
+###############################################################################
 
+# Add error handling, it will return NA value if the data has no staionary part with the precision defined.
+st_extract_spectra_tc=function(data){
+  out=tryCatch(st_extract_spectra(data,alpha=0.05,del_num = 10000), error=function(e) { message("The data has no stationary part with the precision defined.") return(NA) } )
+  return(out)
+}
+
+# test usage for the function st_extract_spectra_tc
+#KinEng_eq=st_extract_spectra_tc(log_data[,3]) # not stationary
+
+# Do the st_extract_spectra_tc on all the features. 
+st_test_result=apply(log_data,2,st_extract_spectra_tc)
+###############################################################################
+
+
+# KinEng_eq=log_data[,2]%>%st_extract_spectra_tc(alpha=0.05,del_num = 10000) # not stationary
+# 
+# PotEng_eq=log_data[,3]%>%st_extract_spectra(alpha=0.05,del_num = 10000) # not stationary
+# 
+# 
+# Press_eq=log_data[,4]%>%st_extract_spectra(alpha=0.05,del_num = 10000) # not stationary
+# print("This is pressure data.")
+# beep(8)
+# Temp_eq=log_data[,5]%>%st_extract_spectra(alpha=0.05,del_num = 10000) # not stationary
+# print("This is temperature data.")
+# beep(8)
+# TotEng_eq=log_data[,6]%>%st_extract_spectra(alpha=0.05,del_num = 10000) # Staionary for the last 10001 data points
+# print("This is total energy data")
+# beep(8)
+# Volume_eq=log_data[,7]%>%st_extract_spectra(alpha=0.05,del_num = 10000) 
+# print("This is volume data")
+# beep(8)
+# # test_kinEng=fractal::stationarity(KinEng_eq)
+# # attr(test_kinEng,"pvals")[1]>0.05
+
+################################################################################
+
+
+################################################################################
+# library(beepr)
+# log_solomon320=read.table("log320_solomon.csv")
+# log_solomon320=log_solomon320%>%long_to_wide()
+# colnames(log_solomon320)
+# 
+# 
+# KinEng_eq=log_solomon320[,2]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary 
+# print("This is Kinetic energy data")
+# 
+# PotEng_eq=log_solomon320[,3]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary 
+# print("This is Potential energy data")
+# Press_eq=log_solomon320[,4]%>%st_extract_spectra(alpha=0.05,del_num = 50)# stationary 
+# print("This is pressure data.")
+# beep(8)
+# Temp_eq=log_solomon320[,5]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary 
+# print("This is temperature data.")
+# beep(8)
+# TotEng_eq=log_solomon320[,6]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary after 50 data points 
+# print("This is total energy data")
+# beep(8)
+#######################################################################################
+
+#######################################################################################
+# library(beepr)
+# log_solomon345=read.table("log345_solomon.csv")
+# log_solomon345=log_solomon345%>%long_to_wide()
+# colnames(log_solomon345)
+# 
+# 
+# KinEng_eq=log_solomon345[,2]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary after 50 data points 
+# print("This is Kinetic energy data")
+# 
+# PotEng_eq=log_solomon345[,3]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary 
+# print("This is Potential energy data")
+# Press_eq=log_solomon345[,4]%>%st_extract_spectra(alpha=0.05,del_num = 50)# stationary 
+# print("This is pressure data.")
+# beep(8)
+# Temp_eq=log_solomon345[,5]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary after 50 data points 
+# print("This is temperature data.")
+# beep(8)
+# TotEng_eq=log_solomon345[,6]%>%st_extract_spectra(alpha=0.05,del_num = 50) # stationary after 550 data points 
+# print("This is total energy data")
+# beep(8)
+
+############################################################################################
