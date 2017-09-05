@@ -41,15 +41,51 @@ long_to_wide=function(dataset){
 # Could only chosee alpha in (0.01, 0.1)
 st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
   # do the statistical test on the data
-  test_fractal=fractal::stationarity(data) #null hypothesis: stationary. 
+  
   # extract the p value. 
-  p_value=attr(test_fractal,"pvals")[1]
+  
   # test to see if the p value is smaller than alpha (type I error rate). 
   # If it is TRUE, it means that the p value is smaller than alpha, then null hypothesis that the data is staionary is rejected. Data not stationary. 
   # If it is FALSE, it means that the p value is bigger than alpha, then we fail to reject the null hypothesis that the data is staionary. Data stationary. 
-  
-  
-  non_stationary=p_value<alpha
+
+  switch(method,
+         fractal={
+           # null hypothesis: stationary
+           test_fractal=fractal::stationarity(data)
+           p_value=attr(test_fractal,"pvals")[1]
+           print(p_value)
+           non_stationary=p_value<alpha
+         },
+         adf={
+           # null phypothesis: unit root present
+           test_adf=tseries::adf.test(data)
+           p_value=test_adf$p.value
+           print(p_value)
+           non_stationary=p_value>alpha 
+         },
+         kpss={
+           # null hypothesis : level stationary 
+           test_kpss=tseries::kpss.test(data)
+           p_value=test_kpss$p.value
+           print(p_value)
+           non_stationary=p_value<alpha
+         },
+         pp={
+           # null phypothesis: unit root present
+           test_pp=tseries::pp.test(data)
+           p_value=test_pp$p.value
+           print(p_value)
+           non_stationary=p_value>alpha
+         },
+         stats.pp={
+           # null phypothesis: unit root present
+           test_pp2=stats::PP.test(data)
+           p_value=test_pp2$p.value
+           print(p_value)
+           non_stationary=p_value>alpha
+         },
+         print("Enter a valid method like fractal,adf,kpss,pp or stats.pp.")
+  )
   
   # If it is stationary, then we will return the original data.
   # If it is not stationary, then we will need to chop off some of the data to test again until we find the part of data that is stationary. 
@@ -73,35 +109,35 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
                # null hypothesis: stationary
                test_fractal=fractal::stationarity(data)
                p_value=attr(test_fractal,"pvals")[1]
-               print(p_value)
+               #print(p_value)
                non_stationary=p_value<alpha
              },
              adf={
                # null phypothesis: unit root present
                test_adf=tseries::adf.test(data)
                p_value=test_adf$p.value
-               print(p_value)
+               #print(p_value)
                non_stationary=p_value>alpha 
              },
              kpss={
                # null hypothesis : level stationary 
                test_kpss=tseries::kpss.test(data)
                p_value=test_kpss$p.value
-               print(p_value)
+               #print(p_value)
                non_stationary=p_value<alpha
              },
              pp={
                # null phypothesis: unit root present
                test_pp=tseries::pp.test(data)
                p_value=test_pp$p.value
-               print(p_value)
+               #print(p_value)
                non_stationary=p_value>alpha
              },
              stats.pp={
                # null phypothesis: unit root present
                test_pp2=stats::PP.test(data)
                p_value=test_pp2$p.value
-               print(p_value)
+               #print(p_value)
                non_stationary=p_value>alpha
              },
              print("Enter a valid method like fractal,adf,kpss,pp or stats.pp.")
@@ -119,7 +155,7 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
     #print("The length of the data is", length(data))
   }
   gc()
-  
+  print(method)
   return(result_data)
 }
 
@@ -127,22 +163,31 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
 #rnorm(100)%>%st_extract()
 ###############################################################################
 
-library(beepr)
-log_data=read.table("log_npt.csv")
+#library(beepr) # for sound effect.
+log_data=read.table("log320_solomon.csv")
 log_data=log_data%>%long_to_wide()
 colnames(log_data)
 
 ###############################################################################
 
 # Add error handling, it will return NA value if the data has no staionary part with the precision defined.
-st_extract_tc=function(data){
-  out=tryCatch(st_extract(data,alpha=0.05,del_num = 10000,method="fractal"), error=function(e) { return(NA) } )
+st_extract_tc=function(data,method){
+  out=tryCatch(st_extract(data,alpha=0.05,del_num = 10000,method=method), error=function(e) { return(NA) } )
   return(out)
 }
 
-# test usage for the function st_extract_spectra_tc
+# test usage for the function st_extract_tc
 #KinEng_eq=st_extract_spectra_tc(log_data[,3]) # not stationary
 
 # Do the st_extract_spectra_tc on all the features. 
-st_test_result=apply(log_data,2,st_extract_spectra_tc)
+library(purrr)
+library(magrittr)
+st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="kpss"))
 st_test_result
+
+######################################################################
+log_data2=read.table("log_npt_noS.csv")
+log_data2=log_data2%>%long_to_wide()
+colnames(log_data2)
+st_test_result2=log_data2%>%map(function(data) st_extract_tc(data,method="kpss"))
+st_test_result2
