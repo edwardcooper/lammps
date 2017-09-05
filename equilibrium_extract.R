@@ -163,10 +163,10 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
 #rnorm(100)%>%st_extract()
 ###############################################################################
 
-#library(beepr) # for sound effect.
-log_data=read.table("log320_solomon.csv")
-log_data=log_data%>%long_to_wide()
-colnames(log_data)
+# #library(beepr) # for sound effect.
+# log_data=read.table("log320_solomon.csv")
+# log_data=log_data%>%long_to_wide()
+# colnames(log_data)
 
 ###############################################################################
 
@@ -180,14 +180,21 @@ st_extract_tc=function(data,method){
 #KinEng_eq=st_extract_spectra_tc(log_data[,3]) # not stationary
 
 # Do the st_extract_spectra_tc on all the features. 
-library(purrr)
-library(magrittr)
-st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="kpss"))
-st_test_result
+# library(purrr)
+# library(magrittr)
+# st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="kpss"))
+# st_test_result
 
 ######################################################################
-log_data2=read.table("log_npt_noS.csv")
-log_data2=log_data2%>%long_to_wide()
-colnames(log_data2)
-st_test_result2=log_data2%>%map(function(data) st_extract_tc(data,method="kpss"))
-st_test_result2
+# log_data2=read.table("log_npt_noS.csv")
+# log_data2=log_data2%>%long_to_wide()
+# colnames(log_data2)
+# st_test_result2=log_data2%>%map(function(data) st_extract_tc(data,method="kpss"))
+# st_test_result2
+
+#############################################################################
+# log_data3=read.table("log.csv")
+# log_data3=log_data3%>%long_to_wide()
+# colnames(log_data3)
+# st_test_result3=log_data3%>%map(function(data) st_extract_tc(data,method="fractal"))
+# st_test_result3
