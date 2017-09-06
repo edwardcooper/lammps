@@ -14,6 +14,7 @@ if test -e log.lammps
 		else 	
 		  echo "Temperature data not scraped."
 		fi 
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		grep Volume log.lammps | tr "=" " " >> log.csv	
 		
@@ -24,6 +25,7 @@ if test -e log.lammps
 		else 	
 		  echo "Volume data not scraped."
 		fi 
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		grep "Press"  log.lammps | tr "P" "\n" | grep ress | replace ress Press | replace "=" "" >> log.csv
 		# test if the data is indeed scraped
@@ -32,7 +34,8 @@ if test -e log.lammps
 		  echo "Scraped pressure data."
 		else 	
 		  echo "Pressure data not scraped."
-		fi 		
+		fi 	
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		grep "TotEng" log.lammps | tr "K" "\n" | grep "TotEng" | replace "=" "" >> log.csv
 		# test if the data is indeed scraped
@@ -42,6 +45,7 @@ if test -e log.lammps
 		else 	
 		  echo "Total energy data not scraped."
 		fi 
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		grep "PotEng" log.lammps | replace "E_bond" "This" | tr "This" "\n" | grep "PotEng" | replace "=" "" >>log.csv 
 		
@@ -52,6 +56,7 @@ if test -e log.lammps
 		else 	
 		  echo "Potential data not scraped."
 		fi 
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		grep KinEng log.lammps | tr "Temp" "\n" | tr "K" "\n" | grep inEng | replace "inEng" "KinEng" | replace "=" "" >> log.csv 
 		# test if the data is indeed scraped
@@ -61,9 +66,10 @@ if test -e log.lammps
 		else 	
 		  echo "Kinetic energy data not scraped."
 		fi 
+		echo "The size of the current scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)"
 		##########################################################
 		echo "The total time used is $SECONDS."
-		echo "The size of the scraped file is $(du -sh log.csv | tr "log.csv" "\n" | grep K)" 
+		echo "The size of the scraped file is $(du -sh log.csv | tr "log.csv" "\n" | head -n 1)." 
 	else 
 		echo "The file log.lammps is not here."
 fi
