@@ -171,7 +171,7 @@ st_extract=function(data, interval=1000,alpha=0.05,method="fractal"){
 ###############################################################################
 
 # Add error handling, it will return NA value if the data has no staionary part with the precision defined.
-st_extract_tc=function(data,method,interval=interval){
+st_extract_tc=function(data,method,interval=100000){
   out=tryCatch(st_extract(data,alpha=0.05,interval = interval,method=method), error=function(e) { return(NA) } )
   return(out)
 }
