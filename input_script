@@ -1,0 +1,48 @@
+# pcff potential parameters for PMMA
+units           real
+neigh_modify    delay 0 every 1
+boundary        p p p
+#processors      2 2 1
+atom_style      full
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+#pair_style      soft 4.5
+pair_style      lj/class2/coul/long 12.0
+kspace_style    pppm 1e-4
+#kspace_modify  slab 3.0
+# MAKE SURE THAT THE FOLLOWING LINE IS CORRECT FOR YOUR FORCE FIELD!
+special_bonds   lj/coul 0.0 0.0 1.0
+#read_restart   restart.7540000 
+#read_data 	320K5ps 
+#read_data PMMA.dat
+#read_data       pcff.lammps05   
+read_data data.in.txt
+velocity        all create 320.0 387983
+#fix             1 all nvt 320.0 320.0 100
+#fix 1 all nvt temp 600.0 600.0 100
+# increase the temp with 10^8 timestep, modulate the pressure 10^8 times. 
+fix 1 all npt temp 600.0 600.0 1000 iso 0.0 0.0 1000.0
+#pair_style      lj/class2/coul/long 12.0
+
+pair_coeff  1  1   0.0200000000   2.9950000000
+pair_coeff  2  2   0.0540000000   4.0100000000
+pair_coeff  3  3   0.0540000000   4.0100000000
+pair_coeff  4  4   0.1200000000   3.8100000000
+pair_coeff  5  5   0.2400000000   3.4200000000
+pair_coeff  6  6   0.2670000000   3.3000000000
+pair_coeff  7  7   0.0540000000   4.0100000000
+pair_coeff  8  8   0.0540000000   4.0100000000
+
+
+thermo          1
+thermo_style    multi
+thermo_modify   flush yes
+timestep        0.01
+restart         500000 restart
+#dump            1 all custom 10 natom600 tag mol type x y z xu yu zu
+dump 10 all custom 100 natom600 mol type x y z xu yu zu
+run             2000000
+#minimize 0.0 1.0e-08 10000 100000
+write_data data.out.txt
