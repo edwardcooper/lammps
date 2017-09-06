@@ -26,8 +26,8 @@ st_test_result5=log_data3%>%map(function(data) st_extract_tc(data,method="kpss")
 st_test_result6=log_data3%>%map(function(data) st_extract_tc(data,method="pp"))
 st_test_result7=log_data3%>%map(function(data) st_extract_tc(data,method="stats.pp"))
 
-st_test_result3
-st_test_result4
-st_test_result5
-st_test_result6
-st_test_result7
+st_test_result3%>%map(length)
+st_test_result4%>%map(length)
+st_test_result5%>%map(length)
+st_test_result6%>%map(length)
+st_test_result7%>%map(length)

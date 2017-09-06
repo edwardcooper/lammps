@@ -39,7 +39,7 @@ long_to_wide=function(dataset){
 
 
 # Could only chosee alpha in (0.01, 0.1)
-st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
+st_extract=function(data, interval=1000,alpha=0.05,method="fractal"){
   # do the statistical test on the data
   
   # extract the p value. 
@@ -98,7 +98,7 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
     
     # while non_stationary is 
     while(non_stationary){
-      del_index=seq(from=1,to=del_num,by=1)
+      del_index=seq(from=1,to=interval,by=1)
       
       # reduce the length of data until non_staionary is false.
       data<-data[-del_index]
@@ -171,8 +171,8 @@ st_extract=function(data, del_num=1000,alpha=0.05,method="fractal"){
 ###############################################################################
 
 # Add error handling, it will return NA value if the data has no staionary part with the precision defined.
-st_extract_tc=function(data,method){
-  out=tryCatch(st_extract(data,alpha=0.05,del_num = 10000,method=method), error=function(e) { return(NA) } )
+st_extract_tc=function(data,method,interval=interval){
+  out=tryCatch(st_extract(data,alpha=0.05,interval = interval,method=method), error=function(e) { return(NA) } )
   return(out)
 }
 
