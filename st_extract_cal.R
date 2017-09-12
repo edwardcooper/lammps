@@ -7,7 +7,7 @@ source('~/Dropbox/lammps/equilibrium_extract.R', echo=TRUE)
  colnames(log_data)
  library(purrr)
  library(magrittr)
- st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="kpss"))
+ st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="fractal"))
  st_test_result%>%map(length)
 
  
