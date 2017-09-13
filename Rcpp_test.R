@@ -114,6 +114,13 @@ microbenchmark(rowSums(y),rowSums_C(y),times=500 )
 
 ################################################################
 sourceCpp("meanC.cpp")
+# This time the C code is slightly faster than the default mean function in R.
 
-# This time the C code is slightly faster. 
+################################################################
+sourceCpp("lapply_C.cpp")
+ 
+# This time the default lapply is much faster than the C code I wrote. 
+################################################################
 
+sourceCpp("scalar_missing.cpp")
+str(scalar_missing())
