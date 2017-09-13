@@ -4,15 +4,27 @@ source('~/Dropbox/lammps/map_pc.R', echo=TRUE)
 
 
 #library(beepr) # for sound effect.
+
+library(purrr)
+library(magrittr)
+log_data320k=read.table("log320K.csv")
+log_data320k=log_data320k%>%long_to_wide()
+colnames(log_data320k)
+st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="fractal",interval=nrow(log_data320k)/10))
+st_test_result320k%>%map(length)
+
+
+
+
+
+
  library(purrr)
  library(magrittr)
- log_data=read.table("log320_solomon.csv")
- log_data=log_data%>%long_to_wide()
- colnames(log_data)
- st_test_result=log_data%>%map_pc(function(data) st_extract_tc(data,method="fractal"))
- st_test_result%>%map(length)
-
-
+ log_data600k=read.table("log600K.csv")
+ log_data600k=log_data600k%>%long_to_wide()
+ colnames(log_data600k)
+ st_test_result600k=log_data600k%>%map_pc(function(data) st_extract_tc(data,method="fractal",interval=nrow(log_data320k)/10) )
+ st_test_result600k%>%map(length)
 #  # library(purrr)
 #  # library(magrittr)
 #  # st_test_result=log_data%>%map(function(data) st_extract_tc(data,method="kpss"))
