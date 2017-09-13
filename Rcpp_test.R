@@ -124,3 +124,10 @@ sourceCpp("lapply_C.cpp")
 
 sourceCpp("scalar_missing.cpp")
 str(scalar_missing())
+# The behavior of missing value in C is a little different than R. 
+###########################################################
+
+sourceCpp("cumsum_C.cpp")
+x=rnorm(1e7)
+library(microbenchmark)
+microbenchmark(cumsum(x),cumsum_C(x),times=1000)
