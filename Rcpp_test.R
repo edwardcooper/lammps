@@ -103,10 +103,17 @@ cppFunction("
 x=matrix(10*1e7,runif(10*1e7),ncol=10,nrow=1e7)
 y=matrix(1e7*10,runif(10*1e7),ncol=1e7,nrow=10)
 
-microbenchmark(rowSums(x),rowSums_C(x),times=500 )
+microbenchmark(rowSums(x),rowSums_C(x),times=500 ) 
+# 10^7 of rows nad 10 columns
+# The C code is faster in this situation.
+
+
 microbenchmark(rowSums(y),rowSums_C(y),times=500 )
+# there is 10 rows but 10^7 columns. 
+# The C code is slower in this situation. 
 
+################################################################
+sourceCpp("meanC.cpp")
 
-
-
+# This time the C code is slightly faster. 
 
