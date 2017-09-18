@@ -1,11 +1,11 @@
 ## write the parallel version of map function map_c with foreach and doParallel. map_c means along column. 
-map_pc=function(data,FUN){
+map_pc=function(data,FUN,nthread=detectCores(),type="FORK"){
   library(foreach)
   library(doParallel)
   
   # make a fork cluster with half of the cores.
   # Half of the cores are the number of real cores. 
-  cl=makeCluster(detectCores()/2,type="FORK")
+  cl=makeCluster(nthread,type=type)
   registerDoParallel(cl)
   
   #result should return a list by default.
