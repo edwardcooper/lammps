@@ -1,5 +1,5 @@
 ## write the parallel version of map function map_c with foreach and doParallel. map_c means along column. 
-map_pc=function(data,FUN,nthread=detectCores(),type="FORK"){
+map_pc=function(data,FUN,nthread=4,type="FORK"){
   library(foreach)
   library(doParallel)
   
