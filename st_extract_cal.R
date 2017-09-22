@@ -97,60 +97,6 @@ timeRecordB(output_message="test_calculation")
 #######################################################################################################################
 
 
-#######################################################################################################################
-
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=1,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=2,type="PSOCK")
-st_test_result320k%>%map(length)
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=3,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=4,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=5,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-
-
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=6,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=7,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
-
-timeRecordB()
-st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=8,type="PSOCK")
-st_test_result320k%>%map(length)
-
-timeRecordB(output_message="test_calculation")
-#######################################################################################################################
 
 
 
