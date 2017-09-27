@@ -1,6 +1,6 @@
 
-source('~/Dropbox/lammps/equilibrium_extract.R', echo=TRUE)
-source('~/Dropbox/lammps/map_pc.R', echo=TRUE) 
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/equilibrium_extract.R", echo=TRUE)
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/map_pc.R", echo=TRUE) 
 source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R",echo=TRUE)
 
 
@@ -47,31 +47,31 @@ timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=1,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 1")
 #######################################################################################################################
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=2,type="FORK")
 st_test_result320k%>%map(length)
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 2")
 #######################################################################################################################
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=3,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 3")
 #######################################################################################################################
 
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=4,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 4")
 #######################################################################################################################
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=5,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 5")
 #######################################################################################################################
 
 
@@ -79,21 +79,21 @@ timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=6,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 6")
 #######################################################################################################################
 
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=7,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 7")
 #######################################################################################################################
 
 timeRecordB()
 st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10),nthread=8,type="FORK")
 st_test_result320k%>%map(length)
 
-timeRecordB(output_message="test_calculation")
+timeRecordB(output_message="test_calculation core_num: 8")
 #######################################################################################################################
 
 

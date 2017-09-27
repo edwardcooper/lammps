@@ -1,0 +1,19 @@
+---
+title: "PMMA simulation progress."
+author: "Zijun Lu"
+output: html_notebook
+---
+
+## The need to redo PMMA simulaiton. 
+
+The first reason is that Prof.Philip asks me to see if I could repeat the simulation of Solomon. Plus, it is for me to learn to do simulation with lammps. 
+
+The second reason is that after I scraped the log.lammps file to plot Pressure.It gives a very big value for pressure. **The unit Solomon choosed is real. **
+
+After using my own bash script to scrape the potential energy, kinetic energy, pressure, volume and etc, I transformed the data from long format to wide format. 
+Then, I plotted it with R. 
+
+```{r}
+
+```
+
