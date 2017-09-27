@@ -58,12 +58,19 @@ long_to_wide=function(dataset){
 
 
 
-log_plot=function(file="log.csv"){
-  # read in the data
-  log=read.table(file)
-  print("Finished loading data.")
-  log=log%>%long_to_wide()
-  print("Finished converting data to wide format.")
+log_plot=function(data="NULL",file="NULL"){
+  if(file!="NULL"){
+    # read in the data
+    log=read.table(file)
+    print("Finished loading data.")
+    log=log%>%long_to_wide()
+    print("Finished converting data to wide format.")
+  }else if(data!="NULL"){
+    log=data
+  }else{
+    print("Enter either a filename or a dataset")
+  }
+  
   
   library(ggplot2)
   
