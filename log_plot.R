@@ -65,10 +65,8 @@ log_plot=function(data="NULL",file="NULL"){
     print("Finished loading data.")
     log=log%>%long_to_wide()
     print("Finished converting data to wide format.")
-  }else if(data!="NULL"){
-    log=data
   }else{
-    print("Enter either a filename or a dataset")
+    log=data
   }
   
   
