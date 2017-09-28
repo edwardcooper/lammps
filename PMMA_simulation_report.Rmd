@@ -1,19 +1,247 @@
 ---
 title: "PMMA simulation progress."
 author: "Zijun Lu"
-output: html_notebook
+output: html_document
 ---
 
-## The need to redo PMMA simulaiton. 
+# The need to redo PMMA simulaiton. 
 
 The first reason is that Prof.Philip asks me to see if I could repeat the simulation of Solomon. Plus, it is for me to learn to do simulation with lammps. 
 
-The second reason is that after I scraped the log.lammps file to plot Pressure.It gives a very big value for pressure. **The unit Solomon choosed is real. **
+The second reason is that after I scraped the log.lammps file to plot Pressure.It gives a very big value for pressure. **The unit Solomon chosen is real. **
 
-After using my own bash script to scrape the potential energy, kinetic energy, pressure, volume and etc, I transformed the data from long format to wide format. 
-Then, I plotted it with R. 
+After using my own [bash script](https://raw.githubusercontent.com/edwardcooper/lammps/master/log_scrape.sh) to scrape the potential energy, kinetic energy, pressure, volume and etc, I transformed the data from long format to wide format using my [long_to_wide function](https://raw.githubusercontent.com/edwardcooper/lammps/master/long_to_wide.R). 
 
-```{r}
+
+```{r,echo=FALSE,message=FALSE,cache=TRUE}
+source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/long_to_wide.R")
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/log_plot.R")
+library(purrr)
+library(magrittr)
+log_data320k=read.table("log320_solomon.csv")
+log_data320k=log_data320k%>%long_to_wide()
+log_data345k=read.table("log345_solomon.csv")
+log_data345k=log_data345k%>%long_to_wide()
+```
+
+# Plot the log.lammps data. 
+
+## Solomon'd log.lammps data plot
+
+Then, I plotted the 320K data from Solomon's simulation with my [log_plot function](https://raw.githubusercontent.com/edwardcooper/lammps/master/log_plot.R). 
+
+```{r,message=FALSE,cache=TRUE}
+log_plot(file="log320_solomon.csv")
+```
+
+Then I do it again for 345K data from Solomon's simulation.
+
+```{r,message=FALSE,cache=TRUE}
+log_plot(file="log345_solomon.csv")
+```
+
+## My NPT log.lammps data plot
+
+This is my NPT simulation data after 0.1ns for 320K, timestep=0.01fs. (Did not finish calculation, number of data points reduced by 100)
+
+```{r,message=FALSE,cache=TRUE}
+library(magrittr)
+log320_npt=read.table("log320_npt.csv",sep=",")
+log_plot(data=log320_npt)
+```
+
+For a closer look at the latter half of the data. 
+
+```{r,message=FALSE,cache=TRUE}
+index_half=seq(from=floor(nrow(log320_npt)/2),to=nrow(log320_npt), by=1 )
+
+log320_npt_half=log320_npt[index_half,]
+
+log_plot(log320_npt_half)
 
 ```
+
+Do the same for the 600K NPT simulation. timestep 0.01fs.   (Finished calculation, number of data points reduced by 1000)
+
+```{r,message=FALSE,cache=TRUE}
+library(magrittr)
+
+log600_npt=read.table("log600_npt.csv",sep=",")
+log_plot(data=log600_npt)
+```
+
+
+
+For a closer look at the latter half of the data. 
+
+```{r,message=FALSE,cache=TRUE}
+index_half=seq(from=floor(nrow(log600_npt)/2),to=nrow(log600_npt), by=1 )
+
+log600_npt_half=log600_npt[index_half,]
+
+log_plot(log600_npt_half)
+
+```
+
+
+# Use stationary test to determine whether the system is in equilibrium. 
+
+The goal is to test whether the log.lammps data is stationary or not. Stationary means the mean and the variance is not changing. 
+
+There are several packages available in R to test stationary.
+
+The first one is the fractal package and the second one is tseries package. The fractal package offers the Priestley-Subba Rao (PSR) Test (here is the tutorial: https://people.maths.bris.ac.uk/~magpn/Research/LSTS/TOS.html), while tseries package offers Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test. 
+
+Of course, you could also use unit root tests to achieve the goal of testing stationarity.
+
+Here is a complete summary of on how to use all these tests with their null and alternative hypothesis listed. (https://github.com/edwardcooper/lammps/blob/master/stationarity_test.R)
+
+After some test on the simulation data, I found that unit root tests are not very effective in determining if my simulation is in equilibrium.
+
+Both the PSR and KPSS test gives correct results on my simulation data.
+
+Performance wise, PSR tests takes much longer to run, while KPSS test is rather quick, like much faster. For about 1.2GB of data, PSR test runs overnight for 10 tests, while KPSS test runs for 100~200 seconds for 10 tests. Both of these tests are parallelized on a quad-core with hyperthreading  i7-6700 CPU with 47GB of RAM (sufficient RAM during calculation).
+
+
+## Test on Solomon's log.lammps data.
+
+Based on the stationary test mentioned above, I write a function to choose the stationary part of the data. If the result returns 1, it means no data is stationary. 
+
+
+Test on 320K data
+
+```{r,message=FALSE,cache=TRUE,echo=FALSE}
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/equilibrium_extract.R", echo=TRUE)
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/map_pc.R", echo=TRUE) 
+source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R",echo=TRUE)
+library(purrr)
+library(magrittr)
+```
+
+
+
+```{r,message=FALSE,cache=TRUE}
+library(magrittr)
+st_test_result320k=log_data320k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10))
+st_test_result320k%>%map(length)
+```
+
+Test on 345K data. 
+
+```{r,message=FALSE,cache=TRUE}
+st_test_result345k=log_data345k%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data345k)/10))
+st_test_result345k%>%map(length)
+```
+
+## Test on my NPT simulation log.lammps data. 
+
+Test on 320K data
+
+
+```{r,message=FALSE,cache=TRUE}
+st_test_result320k_npt=log320_npt%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data320k)/10))
+st_test_result320k_npt%>%map(length)
+```
+
+
+Test on 600K data.
+
+```{r,message=FALSE,cache=TRUE}
+st_test_result600k_npt=log600_npt%>%map_pc(function(data) st_extract_tc(data,method="kpss",interval=nrow(log_data600k)/10))
+st_test_result600k_npt%>%map(length)
+```
+
+
+# Need help on simulation
+
+## Benchmarking for NPY and NVT
+
+
+When using Intel Xeon X5660 (6 cores/socket, 2.66GHz), the best performance is to use 4 nodes, 48 cores. (Group limit to 6 nodes for these CPUs.)
+
+When using Intel Xeon E5-2670 v3 (12 cores/socket,2.3GHz), the best performance is to use 1 node 23 cores. (Group limit to 1 node for these CPUs.)
+
+**Not sure how to run lammps most efficiently in parallel. **
+
+## Trying to reduce pressure
+
+Solomon told me in his email that he equilibrated the sample for 10ns at 600K using NVT.
+![](email.png)
+
+My approach to reduce the pressure is to do 0.5ns of NPT and 10ns NVT. (Calculating for first 5ns of NVT now).
+
+I am also running a pure NVT for 5ns to see if the pressure reduces. (Calculating)
+
+
+** Need some guidance on this**
+
+
+## GPU for lammps
+
+I am not sure that if using GPU would be faster. There are some idle GPU on the cluster. 
+How to run lammps on GPU? (Already read a lot of materials onine but did not successfully do it after some trials.)
+
+## How to do a continuous decrease on Temperature? 
+
+Not sure how to do it. Prof. Philip asked me why do I want to do that and I could not be able to convince him. 
+
+## Use machine learning to determine if the system is in glassy state. 
+
+Models built by this could be less intepretable. 
+Use MSD for different temperatures. (Waiting for MSD calculation.)
+Do a proof of concept on weekends. 
+
+
+## Some concern about the underlying assumption of when deriving the curvature of MSD. 
+
+
+Let us first define the velocity auto-correlation function for a stationary process **x(t)**
+$$
+    C_{\upsilon}(t_2,t_1)=<\upsilon(t_2),\upsilon(t_1)>=\int\int d\upsilon_1d\upsilon_2P(\upsilon_2,t_2|\upsilon_1,t_1) W(\upsilon_1,t_1)\upsilon_1\upsilon_2
+$$
+$P(\upsilon_2,t_1|\upsilon_1,t_1)$ is the transition probability density from velocity $\upsilon_1$ at $t_1$ to velocity $\upsilon_2$ at $t_2$. 
+
+$W(\upsilon_1,t_1)$ is the probability density finding particle with velocity $\upsilon_1$ at $t_1$
+
+### Green Kubo relation 
+
+Thus, the stochastic process x(t) has constant mean and constant variance, which means that $C_{\upsilon}(t_2,t_1)=C_{\upsilon}(t_2-t_1,0)=C_{\upsilon}(\tau,0)$
+
+Recall that $$<x(t)x(t)>=\int^t_0 \int^t_0 dt_1dt_2 \times<\upsilon(t_2),\upsilon(t_1)>=\int^t_0\int^t_0 dt_1dt_2 C_{\upsilon}(t_2,t_1)$$ 
+
+
+Thus, $$D=\frac{<x^2(t)> }{2t} =\int^t_0 C_{\upsilon}(\tau,0)d\tau$$
+
+Taylor expansion of $C_{\upsilon}(t_2,t_1)$ is
+
+
+\begin{align*}
+    C_{\upsilon}(\tau+t,t)&=<\upsilon(\tau+t),\upsilon(t)>=\sum\limits_{n=0}^{\infty} \frac{\tau^{2n}}{2n!} <\upsilon^{(2n)}(t),\upsilon(t)>\\
+    &\textit{Since that} <\upsilon^{(2)}(t),\upsilon(t)>=-<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\
+    &=\sum\limits_{n=0}^{\infty}(-1)^{2n} \frac{\tau^{2n}}{2n!} <\upsilon^{(n)}(t),\upsilon^{(n)}(t)>\\
+    &=(<\upsilon(t),\upsilon(t)>-\frac{1}{2}\alpha \tau^2+\frac{1}{4}\beta \tau^4+O(\tau^6))
+\end{align*}
+
+
+
+
+where $\alpha=<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>$.
+
+### Expression for alpha  
+
+\begin{align*}
+    <x^2(t)>=&2t\int^t_0 C_{\upsilon}(\tau,0)d\tau\\
+    &=2t\int^t_0d\tau (<\upsilon(t),\upsilon(t)>-\frac{1}{2}\alpha \tau^2+O(\tau^4))\\  
+    &\textit{Since that }<\upsilon(t),\upsilon(t)>=\frac{3k_BT}{m}\\  
+    &=2t^2(\frac{3k_BT}{m}-\frac{1}{6}\alpha t^2 +O(t^5))
+\end{align*}
+
+\begin{align*}
+    \frac{d^2}{dt^2}[\frac{<x^2(t)>}{t^2}]\simeq-&\frac{1}{3}\alpha=-\frac{1}{3}<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\&=-\frac{1}{3m^2}<F(t),F(t)>
+\end{align*}
+
+
+
+
 

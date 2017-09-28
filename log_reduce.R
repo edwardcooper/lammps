@@ -1,5 +1,5 @@
 
-
+library(magrittr)
 source("https://raw.githubusercontent.com/edwardcooper/lammps/master/long_to_wide.R")
 
 ## Reduce the size of the scraped log.lammps file. 
@@ -18,3 +18,6 @@ log_reduce=function(infile,interval,outfile){
 # 
 # test_csv=read.table("test.csv",sep=",")
 # colnames(test_csv)
+
+# log_reduce(infile="log600K.csv",interval=1000,outfile ="log600_npt.csv" )
+# log_reduce(infile = "log320K.csv",interval=1000,outfile = "log320_npt.csv")
