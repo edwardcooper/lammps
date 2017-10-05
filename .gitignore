@@ -4,3 +4,5 @@
 .Ruserdata
 log*.csv
 *.log
+*.html
+*.png
