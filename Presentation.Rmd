@@ -1,0 +1,620 @@
+---
+title: 'Predict glass transition from short time simulation '
+author: "Zijun Lu"
+output:
+  html_document: default
+  
+---
+
+## recap on what we are trying to achieve
+We are tryng to use a **short time (~14ps) simulation** to get the glass transition temperature compatible with long time simulation.
+
+```{r,echo=FALSE,include=FALSE}
+
+library(foreach)
+library(dplyr)
+Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA"){
+  
+  # read in data into a matrix
+ MSDcol=foreach(i=1:length(temp),.combine = cbind)%do% {
+   # set correct path for the data file
+   path=paste(Path,"/", polymer,"/atom",temp[i], sep='')
+   path
+   setwd(path)
+   # read in the data
+   MSDcol=read.table(file=filename,header=TRUE,sep=',')
+   library(magrittr)
+   MSDcol%>%dim
+   MSDcol=MSDcol[[1]]
+   return(MSDcol)
+ }
+ 
+ # add a time variable 
+ time=1:dim(MSDcol)[1]
+ # change data into data frame 
+  MSDcol=cbind(time,MSDcol)%>%as.data.frame()
+  
+}
+
+```
+
+## MSD g0 plot for PS
+
+```{r,echo=FALSE}
+
+#Run (optimizaed data import function.R) file first 
+# temp=c(200,250,300,350,400,450,500,550,600)
+# import g0 MSD colmean data for PS 
+########################################################
+library(dplyr)
+
+MSD.PS.g0=Data.import(filename="MSD.colmean.matrix.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+
+MSD.PS.g0=MSD.PS.g0%>%as.data.frame()
+
+# add correct colname 
+temp=c(200,250,300,350,400,450,500,550,600)
+colnames(MSD.PS.g0)=c("time",paste("T",temp,sep=""))
+
+#regular plot 
+###########################################
+library(reshape2)
+MSD.PS.g0.melt=melt(MSD.PS.g0,id.vars="time")
+library(dplyr)
+
+library(ggplot2)
+ggplot(data=MSD.PS.g0.melt,aes(x=time,y=value,colour=variable)) +geom_point(size=0.5)+
+  ylab("MSD")+
+  ggtitle("PS g0 MSD vs time plot")
+
+# log-log plot 
+###########################################
+library(reshape2)
+MSD.PS.g0.melt=melt(MSD.PS.g0,id.vars="time")
+
+
+library(ggplot2)
+ggplot(data=MSD.PS.g0.melt,aes(x=log(time),y=log(value),colour=variable)) +geom_point(size=0.5)+
+  ylab("log(MSD)")+
+  ggtitle("PS g0 MSD vs time log-log plot")
+
+
+```
+
+## MSD g0 plot for PMMA
+
+
+
+```{r}
+library(dplyr)
+
+MSD.PMMA.g0=Data.import(filename="MSD.colmean.matrix.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
+
+MSD.PMMA.g0=MSD.PMMA.g0%>%as.data.frame()
+
+# add correct colname 
+temp=c(320,345,370,395,420,445,470,500,550,600)
+colnames(MSD.PMMA.g0)=c("time",paste("T",temp,sep=""))
+
+#regular plot 
+###########################################
+library(reshape2)
+MSD.PMMA.g0.melt=melt(MSD.PMMA.g0,id.vars="time")
+library(dplyr)
+
+library(ggplot2)
+ggplot(data=MSD.PMMA.g0.melt,aes(x=time,y=value,colour=variable)) +geom_point(size=0.5)+
+  ylab("MSD")+
+  ggtitle("PMMA g0 MSD vs time plot")
+
+# log-log plot 
+###########################################
+library(reshape2)
+MSD.PMMA.g0.melt=melt(MSD.PMMA.g0,id.vars="time")
+
+
+library(ggplot2)
+ggplot(data=MSD.PMMA.g0.melt,aes(x=log(time),y=log(value),colour=variable)) +geom_point(size=0.5)+
+  ylab("log(MSD)")+
+  ggtitle("PMMA g0 MSD vs time log-log plot")
+```
+
+## MSD g0 plot for PIB
+
+
+
+```{r}
+library(dplyr)
+
+MSD.PIB.g0=Data.import(filename="MSD.colmean.matrix.1.txt", temp=c(150,175,200,225,250,275,300,350,400),polymer="PIB")
+
+MSD.PIB.g0=MSD.PIB.g0%>%as.data.frame()
+
+# add correct colname 
+temp=c(150,175,200,225,250,275,300,350,400)
+colnames(MSD.PIB.g0)=c("time",paste("T",temp,sep=""))
+
+#regular plot 
+###########################################
+library(reshape2)
+MSD.PIB.g0.melt=melt(MSD.PIB.g0,id.vars="time")
+library(dplyr)
+
+library(ggplot2)
+ggplot(data=MSD.PIB.g0.melt,aes(x=time,y=value,colour=variable)) +geom_point(size=0.5)+
+  ylab("MSD")+
+  ggtitle("PIB g0 MSD vs time plot")
+
+# log-log plot 
+###########################################
+library(reshape2)
+MSD.PIB.g0.melt=melt(MSD.PIB.g0,id.vars="time")
+
+
+library(ggplot2)
+ggplot(data=MSD.PIB.g0.melt,aes(x=log(time),y=log(value),colour=variable)) +geom_point(size=0.5)+
+  ylab("log(MSD)")+
+  ggtitle("PIB g0 MSD vs time log-log plot")
+```
+
+## MSD g2 plot for PS
+
+```{r,echo=FALSE}
+
+#Run (optimizaed data import function.R) file first 
+# temp=c(200,250,300,350,400,450,500,550,600)
+# import g2 MSD colmean data for PS 
+########################################################
+library(dplyr)
+
+MSD.PS.g2=Data.import(filename="MSD.COM.colmean.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+
+MSD.PS.g2=MSD.PS.g2%>%as.data.frame()
+
+# add correct colname 
+temp=c(200,250,300,350,400,450,500,550,600)
+colnames(MSD.PS.g2)=c("time",paste("T",temp,sep=""))
+
+#regular plot 
+###########################################
+library(reshape2)
+MSD.PS.g2.melt=melt(MSD.PS.g2,id.vars="time")
+library(dplyr)
+
+library(ggplot2)
+ggplot(data=MSD.PS.g2.melt,aes(x=time,y=value,colour=variable)) +geom_point(size=0.5)+
+  ylab("MSD")+
+  ggtitle("PS g2 MSD vs time plot")
+
+# log-log plot 
+###########################################
+library(reshape2)
+MSD.PS.g2.melt=melt(MSD.PS.g2,id.vars="time")
+
+
+library(ggplot2)
+ggplot(data=MSD.PS.g2.melt,aes(x=log(time),y=log(value),colour=variable)) +geom_point(size=0.5)+
+  ylab("log(MSD)")+
+  ggtitle("PS g2 MSD vs time log-log plot")
+
+
+```
+
+## MSD g2 plot for PMMA
+
+
+
+```{r}
+library(dplyr)
+
+MSD.PMMA.g2=Data.import(filename="MSD.COM.colmean.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
+
+MSD.PMMA.g2=MSD.PMMA.g2%>%as.data.frame()
+
+# add correct colname 
+temp=c(320,345,370,395,420,445,470,500,550,600)
+colnames(MSD.PMMA.g2)=c("time",paste("T",temp,sep=""))
+
+#regular plot 
+###########################################
+library(reshape2)
+MSD.PMMA.g2.melt=melt(MSD.PMMA.g2,id.vars="time")
+library(dplyr)
+
+library(ggplot2)
+ggplot(data=MSD.PMMA.g2.melt,aes(x=time,y=value,colour=variable)) +geom_point(size=0.5)+
+  ylab("MSD")+
+  ggtitle("PMMA g2 MSD vs time plot")
+
+# log-log plot 
+###########################################
+library(reshape2)
+MSD.PMMA.g2.melt=melt(MSD.PMMA.g2,id.vars="time")
+
+
+library(ggplot2)
+ggplot(data=MSD.PMMA.g2.melt,aes(x=log(time),y=log(value),colour=variable)) +geom_point(size=0.5)+
+  ylab("log(MSD)")+
+  ggtitle("PMMA g2 MSD vs time log-log plot")
+```
+
+## MSD g2 plot for PIB
+
+Need to calculate the g2 MSD
+
+
+
+## Method 1: Taylor expansion of MSD with Brownian motion approximation $\langle x^2(t) \rangle =2Dt$  .
+
+
+
+Let us first define the velocity auto-correlation function for a stationary process **x(t)**
+$$
+    C_{\upsilon}(t_2,t_1)=<\upsilon(t_2),\upsilon(t_1)>=\int\int d\upsilon_1d\upsilon_2P(\upsilon_2,t_2|\upsilon_1,t_1) W(\upsilon_1,t_1)\upsilon_1\upsilon_2
+$$
+$P(\upsilon_2,t_1|\upsilon_1,t_1)$ is the transition probability density from velocity $\upsilon_1$ at $t_1$ to velocity $\upsilon_2$ at $t_2$. 
+
+$W(\upsilon_1,t_1)$ is the probability density finding particle with velocity $\upsilon_1$ at $t_1$
+
+### Green Kubo relation 
+
+Thus, the stochastic process x(t) has constant mean and constant variance, which means that $C_{\upsilon}(t_2,t_1)=C_{\upsilon}(t_2-t_1,0)=C_{\upsilon}(\tau,0)$
+
+Recall that $$<x(t)x(t)>=\int^t_0 \int^t_0 dt_1dt_2 \times<\upsilon(t_2),\upsilon(t_1)>=\int^t_0\int^t_0 dt_1dt_2 C_{\upsilon}(t_2,t_1)$$ 
+
+
+Thus, $$D=\frac{<x^2(t)> }{2t} =\int^t_0 C_{\upsilon}(\tau,0)d\tau$$
+
+Taylor expansion of $C_{\upsilon}(t_2,t_1)$ is
+
+
+\begin{align*}
+    C_{\upsilon}(\tau+t,t)&=<\upsilon(\tau+t),\upsilon(t)>=\sum\limits_{n=0}^{\infty} \frac{\tau^{2n}}{2n!} <\upsilon^{(2n)}(t),\upsilon(t)>\\
+    &\textit{Since that} <\upsilon^{(2)}(t),\upsilon(t)>=-<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\
+    &=\sum\limits_{n=0}^{\infty}(-1)^{2n} \frac{\tau^{2n}}{2n!} <\upsilon^{(n)}(t),\upsilon^{(n)}(t)>\\
+    &=(<\upsilon(t),\upsilon(t)>-\frac{1}{2}\alpha \tau^2+\frac{1}{4}\beta \tau^4+O(\tau^6))
+\end{align*}
+
+
+
+
+where $\alpha=<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>$.
+
+### Expression for alpha  
+
+\begin{align*}
+    <x^2(t)>=&2t\int^t_0 C_{\upsilon}(\tau,0)d\tau\\
+    &=2t\int^t_0d\tau (<\upsilon(t),\upsilon(t)>-\frac{1}{2}\alpha \tau^2+O(\tau^4))\\  
+    &\textit{Since that }<\upsilon(t),\upsilon(t)>=\frac{3k_BT}{m}\\  
+    &=2t^2(\frac{3k_BT}{m}-\frac{1}{6}\alpha t^2 +O(t^5))
+\end{align*}
+
+\begin{align*}
+    \frac{d^2}{dt^2}[\frac{<x^2(t)>}{t^2}]\simeq-&\frac{1}{3}\alpha=-\frac{1}{3}<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\&=-\frac{1}{3m^2}<F(t),F(t)>
+\end{align*}
+
+**In actual calculation, Solomon's method is to use linear regression with all even orders on MSD and extract the coefficient for t^4.**
+
+## alpha term : MSD by averaging over all atoms for PMMA, PS and PIB.  
+
+First, change the units of time and distance to ps and nm. The original timestep is 10fs, and distance unit is angstrom. So I achieve it by dividing MSD by 100 and (1:tot_num_of_timestep)*0.01. 
+
+Second, the linear regression is done as $MSD/t^2=c_0+c_1*t^2+c_2*t^4+...+c_5*t^{10}$. Then the alpha term (curvature of MSD) is extracted from the simulation by extracting $c_2$ from the linear regression coeeficients. 
+
+
+```{r,echo=FALSE}
+# for even term in t alpha and NGP plotting
+###############################################################################################################
+#Run ( data_import.R) file first 
+
+
+
+
+# write a function to plot the alpha term for different polymers and different MSD calculation method. 
+#Run (optimizaed data import function.R) file first 
+
+
+alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS"){
+  
+  
+  # import colmean data and do linear regression for alpha term 
+  ##############################################################
+  MSD.PS.g0=Data.import(filename=filename1, temp=temp,polymer=polymer)
+  
+  MSD.PS.g0=MSD.PS.g0%>%as.data.frame()
+  
+  
+  
+  # Regression method 1 : using all even order and no intercept
+  ################################################################
+  
+  # change the time units to ps
+  time=MSD.PS.g0[,1]*0.01
+  # change  the length unit to nm. 
+  MSD.PS.g0=MSD.PS.g0/100
+  library(foreach)
+  
+  alpha=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
+    (lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10))%>%confint(level=0.95))[2,]
+  }
+  Rsquared=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
+     c(  ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$adj.rsquared,
+          ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$r.squared
+        )
+  }
+  
+  ###############################################################
+  
+  #first transform the matrix then turn it into a vector 
+  alpha=alpha%>%t%>%as.vector
+  # combine alpha and temp into a data frame 
+  temp=rep(temp,each=2)
+  alpha=data.frame(alpha,temp,Rsquared,row.names = NULL)
+  
+  
+  
+  # calculate the average between two alpha values 
+  alpha_average=alpha%>%group_by(temp) %>% summarize(alpha_average=mean(alpha))
+  alpha_average=rbind(alpha_average,alpha_average)%>%arrange(temp)
+  
+  alpha=cbind(alpha,alpha_average["alpha_average"])
+  
+  
+  # unscaled plot for two 95% confidence interval and average of the end points of the range 
+  library(ggplot2)
+  
+  p1=ggplot(data=alpha, aes(y=alpha/temp,x=temp))+geom_point()+geom_line(aes(x=temp,y=alpha_average/temp),color="red")+
+    #geom_smooth(method= "loess")+
+    xlab("Temperature")+ylab("Curvature of MSD/Temperature ")
+  p3=ggplot(data=alpha, aes(y=Rsquared,x=temp))+geom_point(color="orange")+
+    xlab("Temperature")+ylab("R^2 and adj R^2")
+  ####################################################################################################################
+  
+  #NGP 
+  
+  NGP=Data.import(filename=filename2, temp=temp,polymer=polymer)
+  
+  
+  temp=temp
+  # add column names
+  colnames(NGP)=c("time",paste("T",temp,sep=""))
+  # delete NA values
+  NGP=NGP[complete.cases(NGP),]
+  
+  NGP=NGP%>%colMeans()
+  
+  NGP=NGP[-1]
+  
+  
+  
+  
+  NGP=data.frame(NGP,temp)
+  library(ggplot2)
+  p2=ggplot(data=NGP, aes(y=NGP,x=temp))+geom_line()+
+    xlab("Temperature")+ylab("NGP value")
+    
+  
+  
+  ## Plot NGP and alpha term together
+  
+  
+  library(grid)
+  grid.newpage()
+  grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), ggplotGrob(p3), size = "first"))
+  
+  
+  
+  
+  
+  
+}  
+
+
+# for all terms in t alpha and NGP plotting
+#################################################################################################################
+
+```
+
+
+
+## PS
+
+### PS g0 alpha term all even orders (t^2 to t^20)
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+
+```
+
+## PMMA 
+
+### PMMA g0 alpha term even orders (t^2 to t^20)
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
+
+```
+
+## PIB 
+
+### PIB g0 alpha term even orders (t^2 to t^20)
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(150,175,200,225,250,275,300,350,400),polymer="PIB")
+
+```
+
+
+
+## PS
+
+### PS g2 alpha term all even orders (t^2 to t^20)
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+
+```
+
+## PMMA 
+
+### PMMA g2 alpha term even orders (t^2 to t^20)
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
+
+```
+
+## PIB 
+
+### PIB g2 alpha term even orders (t^2 to t^20)
+
+Need to calculate.
+
+
+## alpha term : MSD by averaging over same atom type 
+
+## PS
+
+### atom type all even orders+Non_gaussian parameter (t^2 to t^20)
+
+```{r,echo=FALSE}
+
+
+
+#Run (optimizaed data import function.R) file first 
+
+# write a function to import data, analyze and print out the graph. 
+########################################################################################################################
+atom.type.plot=function(temp, polymer, type){
+  filename1=paste("atom.type.",type,".MSD.colmean.txt",sep="")
+  filename2=paste("atom.type.",type,".NGP.txt",sep="")
+  # alpha term
+  #############################################################################
+  # import MSD colmean data
+  ########################################################
+  MSD=Data.import(filename=filename1, temp=temp,polymer=polymer)
+  
+  MSD=MSD%>%as.data.frame()
+  
+  
+  
+  # Regression method 1 : using all even order and no intercept
+  ########################################################
+  
+  
+  
+  
+  
+  
+  time=MSD[,1]*0.01
+  MSD=MSD/100
+  
+  library(foreach)
+  
+  alpha=foreach(i=2:(dim(MSD)[2]),.combine = rbind)%do%{
+    (lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10))%>%confint(level=0.95))[2,]
+  }
+  
+  Rsquared=foreach(i=2:(dim(MSD)[2]),.combine = rbind)%do%{
+     c(  ( lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$adj.rsquared,
+          ( lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$r.squared
+        )
+  }
+  #first transform the matrix then turn it into a vector 
+  alpha=alpha%>%t%>%as.vector
+  # combine alpha and temp into a data frame 
+  temp=rep(temp,each=2)
+  alpha=data.frame(alpha,temp,Rsquared,row.names = NULL)
+  
+  
+  
+  
+  # calculate the average between two alpha values 
+  alpha_average=alpha%>%group_by(temp) %>% summarize(alpha_average=mean(alpha))
+  alpha_average=rbind(alpha_average,alpha_average)%>%arrange(temp)
+  
+  alpha=cbind(alpha,alpha_average["alpha_average"])
+  
+  alpha
+  
+  #########################################################################################
+  alpha.title1=paste("alpha term for", polymer, "atom type", type, sep=" ")
+  # unscaled plot 
+  library(ggplot2)
+  
+  p1=ggplot(data=alpha, aes(y=alpha/temp,x=temp))+geom_point()+geom_line(aes(x=temp,y=alpha_average/temp))+
+    xlab("Temperature")+ylab("Curvature of MSD/Temperature ")+ggtitle(alpha.title1)
+  p3=ggplot(data=alpha, aes(y=Rsquared,x=temp))+geom_point(color="orange")+
+    xlab("Temperature")+ylab("R^2 and adj R^2")
+  #NGP
+  ##################################################################################################
+  #NGP 
+  
+  NGP=Data.import(filename=filename2, temp=temp,polymer=polymer)
+  
+  
+  temp=temp
+  # add column names
+  colnames(NGP)=c("time",paste("T",temp,sep=""))
+  # delete NA values
+  NGP=NGP[complete.cases(NGP),]
+  
+  NGP=NGP%>%colMeans()
+  
+  NGP=NGP[-1]
+  
+  NGP
+  
+  NGP.title=paste("NGP for", polymer, "atom type", type,sep=" ")
+  NGP=data.frame(NGP,temp)
+  library(ggplot2)
+  p2=ggplot(data=NGP, aes(y=NGP,x=temp))+geom_line()+
+    xlab("Temperature")+ylab("NGP value")+
+    ggtitle(NGP.title)
+  
+  
+  ## Plot NGP and alpha term together
+  
+  
+  library(grid)
+  grid.newpage()
+  grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2),ggplotGrob(p3), size = "first"))
+  
+}
+##########################################################################################################
+
+
+
+
+#PMMA
+##########################################################################################################
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=1)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=2)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=3)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=4)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=5)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=6)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=7)
+atom.type.plot(temp=c(320,345,370,395,420,445,470,500,550,600), polymer="PMMA", type=8)
+
+
+# PS
+##########################################################################################################
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=1)
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=2)
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=3)
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=4)
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=5)
+atom.type.plot(temp=c(200,250,300,350,400,450,500,550,600), polymer="PS", type=6)
+# PIB
+##########################################################################################################
+atom.type.plot(temp=c(175,200,225,250,275,300,350,400), polymer="PIB", type=1)
+atom.type.plot(temp=c(175,200,225,250,275,300,350,400), polymer="PIB", type=2)
+atom.type.plot(temp=c(175,200,225,250,275,300,350,400), polymer="PIB", type=3)
+atom.type.plot(temp=c(175,200,225,250,275,300,350,400), polymer="PIB", type=4)
+atom.type.plot(temp=c(175,200,225,250,275,300,350,400), polymer="PIB", type=5)
+
+```
+
+
+
