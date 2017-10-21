@@ -1,0 +1,483 @@
+---
+title: "optimization_test"
+author: "Zijun Lu"
+date: "October 18, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Testing some codes to see the performance for optimization. 
+
+
+```{r}
+
+setwd("~/Dropbox/lammps/PMMA_big/atom600")
+source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+
+MSD=function(data){
+  (data$xu-data$xu[1])^2+ (data$yu-data$yu[1])^2+ (data$zu-data$zu[1])^2
+}
+library(foreach)
+library(magrittr)
+library(microbenchmark)
+
+
+
+
+
+
+timeRecordB()
+### Load the data
+atom.600.1=read.table(file="atom.600_1.txt",header=FALSE, sep=" ", stringsAsFactors = FALSE, fill=TRUE
+                      ,col.names = c("atom-id","type","mol","xu","yu","zu")
+                      ,colClasses = c("numeric","numeric","numeric","numeric","numeric","numeric")
+                      ,na.strings = c("ITEM:","TIMESTEP","NUMBER","OF","ATOMS","BOX","BOUNDS", "pp","id","type","mol","xu","yu","zu")
+)
+timeRecordB(output_message = "Load in data")
+# Clear out all rows with NAs.
+atom.600.1=atom.600.1[complete.cases(atom.600.1),]
+gc()
+```
+
+It takes about 9.17 mins to load data using read.table.
+
+## try to use fread instead of read.table to read file into R.
+
+```{r}
+setwd("~/Dropbox/lammps/PMMA_big/atom600")
+timeRecordB()
+library(data.table)
+### Load the data with fread
+atom.600.1_fread=fread(input="atom.600_1.txt", sep=" ", stringsAsFactors = FALSE, fill=TRUE
+                      #,col.names = c("atom-id","type","mol","xu","yu","zu")
+                      ,colClasses = c("numeric","numeric","numeric","numeric","numeric","numeric","character","character")
+                      ,na.strings = c("ITEM:","TIMESTEP","NUMBER","OF","ATOMS","BOX","BOUNDS", "pp","id","type","mol","xu","yu","zu")
+                      
+)
+timeRecordB(output_message = "Load in data fread")
+# select the non-NA columns
+atom.600.1_fread=atom.600.1_fread[,.(V1,V2,V3,V4,V5,V6)]
+# clear the rows that have NA values, V6 contains the most NAs. 
+atom.600.1_fread=atom.600.1_fread[complete.cases(atom.600.1_fread[,V6])]
+colnames(atom.600.1_fread)=c("atom.id","type","mol","xu","yu","zu")
+head(atom.600.1_fread,10)
+```
+
+It takes 2 mins 45 seconds to load data with fread. 
+
+
+```{r}
+setwd("~/Dropbox/lammps/PMMA_big/atom600")
+timeRecordR(unit="min")%>%select(output_message,run_time)%>%filter(output_message!="None")
+```
+
+The clear winner is using fread instead of read.table. About 3 times faster. 
+
+```{r}
+
+library(microbenchmark)
+
+microbenchmark(dplyr=atom.600.1%>%filter(atom.id==1)%>%select(xu,yu,zu)%>%MSD
+               ,base_use=atom.600.1[atom.600.1[,"atom.id"]==1,]%>%.[,c("xu","yu","zu")]%>%MSD
+               ,mix_use=atom.600.1[atom.600.1[,"atom.id"]==1,]%>%select(xu,yu,zu)%>%MSD
+               )
+```
+
+Use the first expression from dplyr pacakge, which is the fastest. 
+
+
+
+```{r}
+
+atom.600.1[,"atom.id"]%>%max()
+atom.600.1[,"atom.id"]%>%min()
+atom.600.1[,"mol"]%>%max()
+atom.600.1[,"mol"]%>%min()
+```
+ 
+This is faster than select. 
+
+
+```{r}
+microbenchmark(
+  
+  MSD.all.matrix.600=foreach(n=1:2,.combine=rbind)%do%{ 
+    atom.600.1%>%filter(atom.id==n)%>%select(xu,yu,zu)%>%MSD
+  } 
+  ,
+  MSD.all.matrix.600.2=foreach(n=1:2,.combine=rbind)%do%{ 
+    atom.600.1%>%filter(atom.id==n)%>%select(xu,yu,zu)
+  }
+  ,times = 10
+)
+```
+
+These two expressions use about the same amount of time. 
+
+The performance bottleneck is not calculating the MSD but searching for all atom.id==1 and select xu,yu,zu values to calculate MSD 
+
+
+
+## Try to use data.table instead of dplyr 
+
+```{r}
+library(data.table)
+atom.600.1.data_table=atom.600.1%>%as.data.table
+timeRecordB()
+microbenchmark(
+  
+  MSD.all.matrix.600=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1%>%filter(atom.id==n)%>%select(xu,yu,zu)%>%MSD
+  } 
+  ,
+  MSD.all.matrix.600.2=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1%>%filter(atom.id==n)%>%select(xu,yu,zu)
+  }
+  ,
+  MSD.all.matrix.600.3=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1.data_table%>%.[atom.id==n]%>%.[,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.4=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,times = 10
+)
+timeRecordB(output_message = "benchmark data.table searching")
+```
+
+
+Using data.table gives a huge speed-up but the exact speed-up is hard to say. Becasue the maximum and minimum fluctuates a lot. 
+
+```{r}
+timeRecordB()
+microbenchmark(
+  MSD.all.matrix.600.3=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n]%>%.[,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.4=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,times = 200
+)
+```
+
+Compare using onestep and two step calculation. The result is clear that the one step search is faster than a two step search. 
+
+Later calculation on the entire dataset confirms the faster in speed in about 5 seconds in the total calculation time of around 300 seconds. 
+
+
+
+```{r}
+microbenchmark(
+   MSD.all.matrix.600.1=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1.data_table%>%.[atom.id==n]%>%.[,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.2=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1.data_table%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.3=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n]%>%.[,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.4=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,times = 200
+)
+```
+
+
+Compare using different dataset and different search methods. 
+
+Results the data from fread is about the same as data converted from read.table. 
+
+One step search is definitely to be faster than two step search. 
+
+
+
+### Try to use setkey to see if there is an speed-up
+
+First set the key for the entire dataset.
+
+```{r}
+atom.600.1_fread_withkey=atom.600.1_fread
+setkey(atom.600.1_fread_withkey,atom.id)
+```
+
+Then compare the one that with key and one without the key.
+
+
+```{r}
+microbenchmark(
+   
+  MSD.all.matrix.600.nokey=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.withkey=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+  }
+  ,times = 200
+)
+```
+
+Using key give a slightly worse performance but I would say they are statistically about the same. No data so that no t.test could be done.
+
+### Let us look at the MSD function to see if we could improve its speed.
+
+Define the MSD in a data.table way. 
+
+
+```{r}
+MSD2=function(data){
+    MSD=(data[,xu]-data[1,xu])^2+(data[,yu]-data[1,yu])^2+(data[,zu]-data[1,zu])^2
+    }
+```
+
+
+```{r}
+microbenchmark(
+   
+  MSD.all.matrix.600.nokey_MSD1=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.withkey_MSD1=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.nokey_MSD2=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD2
+  }
+  ,
+  MSD.all.matrix.600.withkey_MSD2=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD2
+  }
+  ,times = 200
+)
+```
+
+The original MSD function gives better results than the new MSD2 function. About double the speed. Plus, using key gives slightly better performance. very small improvement.
+
+
+Next, we need to compare if the calculation with MSD and without MSD in order to see if MSD calculation takes a long time. 
+
+```{r}
+microbenchmark(
+   
+  MSD.all.matrix.600.nokey_MSD1=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.nokey_noMSD=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]
+  }
+  ,
+  MSD.all.matrix.600.withkey_MSD1=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+  }
+  ,
+   MSD.all.matrix.600.withkey_noMSD=foreach(n=1:20,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]
+  }
+  ,times = 200
+)
+```
+
+
+About a 3 millisecond more for calculation with MSD. Possibly could improve with C code. But overall effect would be small?
+Plus, using key gives a marginally quicker calculation. 
+
+### Next, let us see if the foreach function takes a long time 
+
+Need to know which MSD and data do you use. 
+
+Use the original MSD function, and the data from fread with and without key.
+
+```{r}
+microbenchmark(
+  MSD.all.matrix.600.nokey_MSD1_noforeach=atom.600.1_fread%>%.[atom.id==100,.(xu,yu,zu)]%>%MSD
+  ,
+  MSD.all.matrix.600.withkey_MSD1_noforeach=atom.600.1_fread_withkey%>%.[.(100),.(xu,yu,zu)]%>%MSD
+  ,
+   MSD.all.matrix.600.nokey_MSD1=foreach(n=1:100,.combine=rbind)%do%{ 
+    atom.600.1_fread%>%.[atom.id==n,.(xu,yu,zu)]%>%MSD
+  }
+  ,
+  MSD.all.matrix.600.withkey_MSD1=foreach(n=1:100,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+  }
+  ,times = 200
+)
+```
+
+There is some room for improvement here for using foreach. Using foreach gives a much slower calculation. Like a lot slower.
+
+
+### check if the various data.table methods give the same answer as the the dplyr
+
+
+```{r}
+# two step search
+(  (atom.600.1.data_table%>%.[atom.id==2000]%>%.[,.(xu,yu,zu)]%>%MSD)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+# one step search
+(  (atom.600.1_fread%>%.[atom.id==2000,.(xu,yu,zu)]%>%MSD)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+
+# one step search with key
+(  (atom.600.1_fread_withkey%>%.[atom.id==2000,.(xu,yu,zu)]%>%MSD)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+# one step search with key and new MSD function
+(  (atom.600.1_fread_withkey%>%.[atom.id==2000,.(xu,yu,zu)]%>%MSD2)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+
+
+# one step search with key
+(  (atom.600.1_fread_withkey%>%.[.(2000),.(xu,yu,zu)]%>%MSD)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+# one step search with key and new MSD function
+(  (atom.600.1_fread_withkey%>%.[.(2000),.(xu,yu,zu)]%>%MSD2)==(atom.600.1%>%filter(atom.id==2000)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+```
+
+
+
+It seems that using purely the key is faster but gives different result.
+
+Find out the difference between using key and not using key 
+
+
+```{r}
+((atom.600.1_fread_withkey%>%.[atom.id==1000,.(xu,yu,zu)]%>%MSD2)-(atom.600.1_fread_withkey%>%.[.(1000),.(xu,yu,zu)]%>%MSD) )%>%plot()
+```
+
+The difference is kind of big, but why? Read the cheat sheet for data.table. But leave it for now, since this is not a serious bottleneck right now. 
+
+
+```{r}
+setkey(atom.600.1_fread_withkey,atom.id)
+
+(atom.600.1_fread_withkey%>%.[atom.id==1000,.(xu,yu,zu)])%>%dim()
+(atom.600.1_fread_withkey[.(1000),.(xu,yu,zu)])%>%dim()
+
+```
+
+Using key to search for the value is not doing as it is stated in the cheat-sheet from datacamp for data.table package. It only returned one value. 
+
+Read more about it later. I figured out how to work with the key. If the key column is integer or numeric, you will need to do .(10) to select key rows that have a value of 10. 
+
+
+
+After much test, the possible improvement could be done with the foreach, and possible improvement with MSD written in C. 
+
+Let us try to optimize on how to combine the results and compare it with foreach. 
+
+```{r}
+## Need to define MSD function and load data.table library before using this function. Plus the the key for 
+MSD_matrix=function(data,timestep,tot_atoms){
+  MSD_empty_matrix=matrix(NA,nrow=tot_atoms,ncol=timestep)
+  for(i in 1:tot_atoms){
+    MSD_empty_matrix[i,]=data%>%.[.(i),.(xu,yu,zu)]%>%MSD
+  }
+  return(MSD_empty_matrix)
+}
+```
+
+
+
+
+```{r}
+microbenchmark(
+  
+  MSD.all.matrix.600.withkey_MSD1_for=MSD_matrix(data=atom.600.1_fread_withkey,timestep = 5001,tot_atoms = 10)
+  ,
+  
+   MSD.all.matrix.600.withkey_MSD1_foreach=foreach(n=1:10,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+   }
+  ,times = 100
+  
+)
+```
+
+Using for within a function with replacement is the fastest method so far. The improvement is not dramatic 
+
+
+
+check if they gives the same results.
+
+```{r}
+
+(  (MSD_matrix(data=atom.600.1_fread_withkey,timestep = 5001,tot_atoms = 1))==(atom.600.1%>%filter(atom.id==1)%>%select(xu,yu,zu)%>%MSD) )%>%sum()
+```
+
+check if they gives the same results.
+
+```{r}
+(
+  MSD_matrix(data=atom.600.1_fread_withkey,timestep = 5001,tot_atoms = 10)[5,]==(foreach(n=1:100,.combine=rbind)%do%{ 
+    atom.600.1_fread_withkey%>%.[.(n),.(xu,yu,zu)]%>%MSD
+   })[5,]
+ )%>%sum
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
