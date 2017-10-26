@@ -96,7 +96,7 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
     
     # change the index here if the molecule number starts from 1. 
     for(j in 1:num_mol){
-      MSD_g2_empty_matrix[j,]=center_of_mass[mol==(j-1+mol_mini),]%>% MSD
+      MSD_g2_empty_matrix[j,]=center_of_mass[mol==(j-1+mol_min),]%>% MSD
     }
     return(MSD_g2_empty_matrix)
   }
