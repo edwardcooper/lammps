@@ -81,9 +81,7 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   
   ## First, calculate the center of mass. Then calculate the MSD for difference molecules. 
   
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This function calculate the molecule number from 0 instead of 1. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+ 
   
   MSD_g2_matrix=function(data,timestep,num_mol,totmass,mol_min){
     MSD_g2_empty_matrix=matrix(NA,ncol=timestep,nrow=num_mol)
