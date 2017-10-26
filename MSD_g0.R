@@ -34,7 +34,7 @@ MSD_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom600",filename="atom
     (data$xu-data$xu[1])^2+ (data$yu-data$yu[1])^2+ (data$zu-data$zu[1])^2
   }
   
-  # Define a function to combine the results from MSd calculation
+  # Define a function to combine the results from MSD calculation
   MSD_matrix=function(data,timestep,tot_atoms){
     MSD_empty_matrix=matrix(NA,nrow=tot_atoms,ncol=timestep)
     for(i in 1:tot_atoms){
@@ -57,12 +57,12 @@ MSD_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom600",filename="atom
   timeRecordB(output_message = "NGP calculation")
   # write the NGP into a txt file
   timeRecordB()
-  NGP.600%>%write.table(file="NGP.1.txt", sep=",")
+  NGP.600%>%write.table(file="NGP.g0.1.txt", sep=",")
   timeRecordB(output_message = "NGP Write")
   
   # calculation the MSD averagd over all atoms and write it to a txt file.
   timeRecordB()
-  MSD.all.matrix.600%>%colMeans%>%write.table(file="MSD.colmean.matrix.1.txt", sep=",")
+  MSD.all.matrix.600%>%colMeans%>%write.table(file="MSD.g0.colmean.1.txt", sep=",")
   timeRecordB(output_message = "MSD average Write")
   
   return(timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time)
