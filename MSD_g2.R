@@ -140,7 +140,8 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
 
 
 ## echo the current calculation and percentage of entire calculation.  
-MSD_g2=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001){
+MSD_g2=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001
+                ,num_mol=64,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)){
   library(magrittr)
   # the loop to calculate the same thing in all temepratures defined above. 
   for (i in seq_along(temperatures)){
@@ -153,7 +154,8 @@ MSD_g2=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300
     filename=paste("atom.",temperatures[i],"_1.txt",sep="")
     
     # calculation for MSD
-    MSD_g2_one_temp(path=path,filename =filename ,timestep=timestep)
+    MSD_g2_one_temp(path=path,filename =filename ,timestep=timestep
+                    ,num_mol=num_mol,atom_type=atom_type,atom_type_mass=atom_type_mass)
     
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message
