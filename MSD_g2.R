@@ -30,7 +30,8 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   colnames(atom.300.1_fread)=c("atom.id","type","mol","xu","yu","zu")
   # define the total number of atoms. 
   tot_atom_num=atom.300.1_fread[,"atom.id"]%>%max()
- 
+  # minimum mol number
+  mini_mol_num=atom.300.1_fread[,"mol"]%>%min()
   
   #################################################################################
   # Define MSD function
@@ -84,7 +85,7 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This function calculate the molecule number from 0 instead of 1. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
   
-  MSD_g2_matrix=function(data,timestep,num_mol,totmass){
+  MSD_g2_matrix=function(data,timestep,num_mol,totmass,mol_min){
     MSD_g2_empty_matrix=matrix(NA,ncol=timestep,nrow=num_mol)
     ###############################################################
     # calculate the center of mass for every timestep and every molecule. 
@@ -95,15 +96,16 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
     
     # change the index here if the molecule number starts from 1. 
     for(j in 1:num_mol){
-      MSD_g2_empty_matrix[j,]=center_of_mass[mol==(j-1),]%>% MSD
+      MSD_g2_empty_matrix[j,]=center_of_mass[mol==(j-1+mol_mini),]%>% MSD
     }
     return(MSD_g2_empty_matrix)
   }
   
   timeRecordB()
   
-  MSD.matrix=MSD_g2_matrix(atom.300.1_fread,timestep=timestep,num_mol=num_mol ,totmass=totmass)
-  
+  MSD.matrix=MSD_g2_matrix(atom.300.1_fread,timestep=timestep,num_mol=num_mol ,totmass=totmass,mol_min = mini_mol_num)
+  # echo the minimum mol number
+  paste("The minimum mol number:",mini_mol_num)%>%message()
   timeRecordB(output_message = "MSD for center of mass")
   
   gc()
