@@ -160,6 +160,7 @@ MSD_g2=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message
     paste(i,"/",length(temperatures))%>%message
+    gc()
   }
   
   return( timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time) )

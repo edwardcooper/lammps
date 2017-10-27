@@ -122,7 +122,7 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",polymer="PMMA_
     MSD_g1_empty_matrix=matrix(NA,ncol=timestep,nrow=num_monomer)
     ###############################################################
     # calculate the center of mass for every timestep and every monomer 
-    center_of_mass=data%>%.[,.(xu=sum(xu*mass)/monomer_mass,yu=sum(yu*mass)/monomer_mass,zu=sum(zu*mass)/monomer_mass),by=.(monomer.id,time_step)]
+    center_of_mass=data[,.(xu=sum(xu*mass)/monomer_mass,yu=sum(yu*mass)/monomer_mass,zu=sum(zu*mass)/monomer_mass),by=.(monomer.id,time_step)]
     
     ###############################################################
     for(j in 1:num_monomer){
@@ -199,6 +199,7 @@ MSD_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message
     paste(i,"/",length(temperatures))%>%message
+    gc()
   }
   
   return( timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time) )
