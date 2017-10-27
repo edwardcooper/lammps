@@ -10,13 +10,12 @@ monomer_gen_PS=function(atom_id,molecule_atoms=645,molecule_monomers=40,monomer_
   return(monomer.id)
 }
 
+
 data.frame(id=monomer_gen_PS(atom_id =1:34 ), atom.id=1:34  )
 
-data.frame(id=monomer_gen_PS(atom_id =610:645), atom.id=610:645 )
+data.frame(id=monomer_gen_PS(atom_id =609:645 ), atom.id=609:645 )
 
-monomer_gen_PS(atom_id =1:25800)%>%table()%>%table()
-
-
+monomer_gen_PS(atom_id =1:25800)%>%table%>%table()
 
 
 ## Monomer id gen function test for PMMA_big

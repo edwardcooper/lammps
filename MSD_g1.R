@@ -1,7 +1,7 @@
 ## Write a function to calculate MSD averaged over all molecules for all temperatures. 
 
 ### First define a function to do the calculation for one temeprature. 
-MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom.300_1.txt",timestep=5001,num_mol=64
+MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",polymer="PMMA_big",filename="atom.300_1.txt",timestep=5001,num_mol=64
                          ,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)){
   # load the timeRecord functions from my github account.
   source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
@@ -74,16 +74,35 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   atom.300.1_fread[,time_step:=seq(1,timestep,by=1)%>%rep(times=tot_atom_num)%>%sort()]
   timeRecordB(output_message = "add time variable data.table")
   
-  # define a function to generate correct monomer id. 
-  monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms){
-    # if it is on the either end of polymer, the monomer is defined as monomer 0. 
-    # if the atom is not on the end, then first calculate the molecule number and multiply it by 40 since there is 40 monomers in each molecule.
-    # then add the the monomer number it has in this molecule. Need to deduct the first atom off the molecule, divided by the number of atoms in a monomer and get a integer
-    # then you have the monomer id. 
-    monomer.id=ifelse(atom_id%%molecule_atoms==1 | atom_id%%molecule_atoms==0
-                      ,0
-                      ,floor(atom_id/molecule_atoms)*molecule_monomers+ceiling((atom_id%%molecule_atoms-1)/monomer_atoms) )
-    return(monomer.id)
+  
+  # define a function to generate correct monomer id depending on the polymer option in the function.
+  if(polymer=="PMMA_big"){
+    
+    
+    monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms,edge_atoms=c(0,1)){
+      # if it is on the either end of polymer, the monomer is defined as monomer 0. 
+      # if the atom is not on the end, then first calculate the molecule number and multiply it by 40 since there is 40 monomers in each molecule.
+      # then add the the monomer number it has in this molecule. Need to deduct the first atom off the molecule, divided by the number of atoms in a monomer and get a integer
+      # then you have the monomer id. 
+      monomer.id=ifelse(atom_id%%molecule_atoms %in% edge_atoms
+                        ,0
+                        ,floor(atom_id/molecule_atoms)*molecule_monomers+ceiling((atom_id%%molecule_atoms-1)/monomer_atoms) )
+      return(monomer.id)
+    }
+    
+    
+  }else if(polymer=="PS"){
+    
+    monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms,edge_atoms=c(17,642,643,644,0)){
+      
+      monomer.id=ifelse((atom_id%%molecule_atoms )%in% edge_atoms
+                        ,0
+                        ,floor(atom_id/molecule_atoms)*molecule_monomers
+                        +ceiling((atom_id%%molecule_atoms+ifelse(atom_id%%molecule_atoms>16,-1,0))/monomer_atoms)
+      )
+      return(monomer.id)
+    }
+    
   }
   
   # add monomer id 
@@ -91,7 +110,6 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   atom.300.1_fread[,monomer.id:=monomer_gen(atom_id=atom.id,molecule_atoms=molecule_atoms,molecule_monomers=molecule_monomers,monomer_atoms=monomer_atoms)]
   timeRecordB(output_message = "add monomer id variable data.table")
   gc()
-  
   # mass of monomer 
   monomer_mass=atom.300.1_fread[time_step==1,]%>%.[monomer.id==1,.(mass)]%>%sum
   
@@ -99,9 +117,6 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
   
   # First calculate the center of mass of each monomer at each timestep, then calculate MSD for each monomer.
   
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This function calculate the monomer number from 1 instead of 0. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
   
   MSD_g1_matrix=function(data,timestep,num_monomer,monomer_mass){
     MSD_g1_empty_matrix=matrix(NA,ncol=timestep,nrow=num_monomer)
@@ -150,13 +165,21 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
 
 
 # test usage()
-# MSD_g1_one_temp(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom.300_1.txt",timestep=5001)
+MSD_g1_one_temp(path="~/Dropbox/lammps/PMMA_big/atom300",polymer="PMMA_big",filename="atom.300_1.txt",timestep=5001,num_mol=64
+,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011))
+
+MSD_g1_one_temp(path="~/Dropbox/lammps/PS/atom300",polymer="PS",filename="atom.300_1.txt",timestep=5001,num_mol=40
+                ,molecule_atoms=645,molecule_monomers=40,molecule_monomers=16,atom_type=1:6,atom_type_mass=,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
+
 
 
 
 
 ## echo the current calculation and percentage of entire calculation.  
-MSD_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001){
+MSD_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20)
+                ,timestep=5001,num_mol=64
+                ,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15
+                ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)){
   library(magrittr)
   # the loop to calculate the same thing in all temepratures defined above. 
   for (i in seq_along(temperatures)){
@@ -169,7 +192,9 @@ MSD_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300
     filename=paste("atom.",temperatures[i],"_1.txt",sep="")
     
     # calculation for MSD
-    MSD_g1_one_temp(path=path,filename =filename,timestep=timestep)
+    MSD_g1_one_temp(path=path,filename =filename,timestep=timestep,
+                    polymer=polymer,num_mol=num_mol,molecule_atoms=molecule_atoms,molecule_monomers=molecule_monomers
+                    ,monomer_atoms=monomer_atoms,atom_type=atom_type,atom_type_mass=atom_type_mass)
     
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message
@@ -180,4 +205,7 @@ MSD_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300
 }
 
 # example use 
-# MSD_g1()
+# MSD_g1(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20)
+# ,timestep=5001,num_mol=64
+# ,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15
+# ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011))
