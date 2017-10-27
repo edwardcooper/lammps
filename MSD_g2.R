@@ -87,7 +87,7 @@ MSD_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom
     MSD_g2_empty_matrix=matrix(NA,ncol=timestep,nrow=num_mol)
     ###############################################################
     # calculate the center of mass for every timestep and every molecule. 
-    center_of_mass=data%>%group_by(mol,time_step)%>%summarise(xu=sum(xu*mass)/totmass,yu=sum(yu*mass)/totmass,zu=sum(zu*mass)/totmass)
+    center_of_mass=data[,.(xu=sum(xu*mass)/totmass,yu=sum(yu*mass)/totmass,zu=sum(zu*mass)/totmass),by=.(mol,time_step)]
     # transform it into a data.table for faster subset. 
     center_of_mass=center_of_mass%>%as.data.table()
     ###############################################################
