@@ -8,20 +8,25 @@ source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_g2.R")
 
 
 MSD_g0(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001)
-MSD_g1(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001)
-MSD_g2(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001)
+
+MSD_g1(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001
+          ,num_mol=64
+          ,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15
+          ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011))
+
+MSD_g2(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),timestep=5001
+       ,num_mol=64,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011))
+
+
 
 
 MSD_g0(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),timestep=5001)
 
+MSD_g1(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),timestep=5001
+      ,num_mol=40
+      ,molecule_atoms=645,molecule_monomers=40,monomer_atoms=16
+      ,atom_type=1:6,atom_type_mass=,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
 
-
-
-
-# Need to modify the MSD_g1() functions to deal with PS monomer MSD.
-
-
-# Need some more data on atom_type and mass + number of molecules in total+ adjust the starting mol number. 
 MSD_g2(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),timestep=5001
          ,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
 

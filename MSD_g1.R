@@ -169,7 +169,7 @@ MSD_g1_one_temp(path="~/Dropbox/lammps/PMMA_big/atom300",polymer="PMMA_big",file
 ,molecule_atoms=602,molecule_monomers=40,monomer_atoms=15,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011))
 
 MSD_g1_one_temp(path="~/Dropbox/lammps/PS/atom300",polymer="PS",filename="atom.300_1.txt",timestep=5001,num_mol=40
-                ,molecule_atoms=645,molecule_monomers=40,molecule_monomers=16,atom_type=1:6,atom_type_mass=,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
+                ,molecule_atoms=645,molecule_monomers=40,monomer_atoms=16,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
 
 
 
