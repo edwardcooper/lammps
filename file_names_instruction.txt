@@ -1,0 +1,6 @@
+MSD.colmean.matrix.1.txt (MSD.g0.colmean.1.txt) is the averaged MSD over all atoms g0
+MSD.g1.colmean.1.txt     (same)                 is the averaged MSD over all monomers g1
+MSD.COM.colmean.1.txt    (MSD.g2.colmean.1.txt) is the averaged MSD over all molecules (calculate center of mass of molecules and then MSD averaged) g2
+NGP.1.txt                (NGP.g0.1.txt)         is the NGP value for all atoms at each timestep g0
+NGP.g1.txt               (NGP.g1.1.txt)         is the NGP value for all monomers at each timestep g1
+NGP.COM.1.txt            (NGP.g2.1.txt)         is the NGP value for all molecules at each timestep g2
