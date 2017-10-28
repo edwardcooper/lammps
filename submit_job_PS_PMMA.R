@@ -25,7 +25,7 @@ MSD_g0(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),tim
 MSD_g1(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),timestep=5001
       ,num_mol=40
       ,molecule_atoms=645,molecule_monomers=40,monomer_atoms=16
-      ,atom_type=1:6,atom_type_mass=,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
+      ,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
 
 MSD_g2(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),timestep=5001
          ,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
