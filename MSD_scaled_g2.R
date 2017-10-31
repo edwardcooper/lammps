@@ -12,8 +12,7 @@ MSD_scaled_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
                                 ,ylow=-0.535315
                                 ,zhigh=73.6408
                                 ,zlow=1.59139){
-  # load the timeRecord functions from my github account.
-  source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+
   setwd(path)
   # record the time
   timeRecordB()
@@ -169,6 +168,8 @@ MSD_scaled_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 }
 
 # example use 
+# load the timeRecord functions from my github account.
+# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
 # MSD_scaled_g2_one_temp(path="~/Dropbox/lammps/PMMA_long/atom300",filename="atom.300_long2",num_mol=64,molecule_atoms=602
 #   ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
 #   ,xhigh=72.3695
@@ -191,6 +192,8 @@ MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
                        ,zhigh=73.6408
                        ,zlow=1.59139
                       ){
+  # load the timeRecord functions from my github account.
+  source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
   library(magrittr)
   # the loop to calculate the same thing in all temepratures defined above. 
   for (i in seq_along(temperatures)){
