@@ -98,7 +98,7 @@ MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
   
   
   timeRecordB()
-  MSD.all.matrix.300%>%colMeans%>%write.table(file="MSD.g0.1.txt", sep=",")
+  MSD.all.matrix.300%>%colMeans%>%write.table(file="MSD.g0.colmean.1.txt", sep=",")
   timeRecordB(output_message = "MSD average over all atom calculation and write")
   
   
@@ -118,7 +118,7 @@ MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 
 
 ## echo the current calculation and percentage of entire calculation.  
-MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,640,by=20)
+MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
                        ,xhigh=72.3695
                        ,xlow=2.86271
                        ,yhigh=75.7675
