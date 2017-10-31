@@ -149,7 +149,7 @@ MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
 }
 
 # example use
-MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,640,by=20)
+MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
               ,xhigh=72.3695
               ,xlow=2.86271
               ,yhigh=75.7675
