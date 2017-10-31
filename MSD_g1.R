@@ -76,7 +76,7 @@ MSD_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_big/atom300",polymer="PMMA_
   
   
   # define a function to generate correct monomer id depending on the polymer option in the function.
-  if(polymer=="PMMA_big"){
+  if(polymer %in% c("PMMA_big","PMMA_long")){
     
     
     monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms,edge_atoms=c(0,1)){

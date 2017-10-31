@@ -51,8 +51,51 @@ MSD_scaled_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
     # build a nested ifelse function by recursion
     decode.fun <- function(search, replace, default = NULL)
       if (length(search) == 0) {
-        function(x) if (is.null(default)) x else rep(default, length(x))
-      } else {
+        function(x) if (is.null(default)) x else rep(default, length(x))# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+        # MSD_scaled_g2_one_temp(path="~/Dropbox/lammps/PMMA_long/atom300",filename="atom.300_long2",num_mol=64,molecule_atoms=602
+        #   ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
+        #   ,xhigh=72.3695
+        #   ,xlow=2.86271
+        #   ,yhigh=75.7675
+        #   ,ylow=-0.535315
+        #   ,zhigh=73.6408
+        #   ,zlow=1.59139)
+      } else {## echo the current calculation and percentage of entire calculation.  
+        MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
+                               ,num_mol=64,molecule_atoms=602
+                               ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
+                               ,xhigh=72.3695
+                               ,xlow=2.86271
+                               ,yhigh=75.7675
+                               ,ylow=-0.535315
+                               ,zhigh=73.6408
+                               ,zlow=1.59139
+        ){
+          # load the timeRecord functions from my github account.
+          source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+          library(magrittr)
+          # the loop to calculate the same thing in all temepratures defined above. 
+          for (i in seq_along(temperatures)){
+            # echo beginning of calculation
+            paste("Begin calculation of temperature:",temperatures[i],sep="")%>%message
+            
+            # set correct path for the data file
+            path=paste(Path,"/", polymer,"/atom",temperatures[i], sep='')
+            # find the correct file to read and calculate.
+            filename=paste("atom.",temperatures[i],"_long2",sep="")
+            
+            # calculation for MSD
+            MSD_scaled_g2_one_temp(path=path,filename =filename,num_mol=num_mol,molecule_atoms=molecule_atoms,atom_type=atom_type,atom_type_mass=atom_type_mass
+                                   ,xhigh=xhigh,xlow=xlow,yhigh=yhigh,ylow=ylow,zhigh=zhigh,zlow=zlow )
+            
+            # echo end of calculation
+            paste("End calculation of temperature:",temperatures[i],sep="")%>%message
+            paste(i,"/",length(temperatures))%>%message
+            gc()
+          }
+          
+          return( timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time) )
+        }
         function(x) ifelse(x == search[1], replace[1],
                            decode.fun(tail(search, -1),
                                       tail(replace, -1),
@@ -182,7 +225,7 @@ MSD_scaled_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 
 
 ## echo the current calculation and percentage of entire calculation.  
-MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
+MSD_scaled_g2=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
                        ,num_mol=64,molecule_atoms=602
                        ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
                        ,xhigh=72.3695
@@ -219,7 +262,7 @@ MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
 }
 
 # example use
-MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
+MSD_scaled_g2(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
               ,num_mol=64,molecule_atoms=602
               ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
               ,xhigh=72.3695
