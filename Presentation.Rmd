@@ -289,11 +289,27 @@ where $\alpha=<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>$.
     &=2t^2(\frac{3k_BT}{m}-\frac{1}{6}\alpha t^2 +O(t^5))
 \end{align*}
 
-\begin{align*}
-    \frac{d^2}{dt^2}[\frac{<x^2(t)>}{t^2}]\simeq-&\frac{1}{3}\alpha=-\frac{1}{3}<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\&=-\frac{1}{3m^2}<F(t),F(t)>
-\end{align*}
+
 
 **In actual calculation, Solomon's method is to use linear regression with all even orders on MSD and extract the coefficient for t^4.**
+
+
+
+## What if MSD~$t^{0.5}$ ?
+
+\begin{align*}
+    <x^2(t)>=&2t^{0.5}\int^t_0 C_{\upsilon}(\tau,0)d\tau\\
+    &=2t^{0.5}\int^t_0d\tau (<\upsilon(t),\upsilon(t)>-\frac{1}{2}\alpha \tau^2+O(\tau^4))\\  
+    &\textit{Since that }<\upsilon(t),\upsilon(t)>=\frac{3k_BT}{m}\\  
+    &=2t^{1.5}(\frac{3k_BT}{m}-\frac{1}{6}\alpha t^2 +O(t^5))
+\end{align*}
+
+
+\begin{align*}
+    \frac{d^2}{dt^2}[\frac{<x^2(t)>}{t^{1.5}}]\simeq-&\frac{1}{3}\alpha=-\frac{1}{3}<\upsilon^{(1)}(t),\upsilon^{(1)}(t)>\\&=-\frac{1}{3m^2}<F(t),F(t)>
+\end{align*}
+
+If this is the case, the regression should be done 
 
 ## alpha term : MSD by averaging over all atoms for PMMA, PS and PIB.  
 
@@ -303,7 +319,7 @@ Second, the linear regression is done as $MSD/t^2=c_0+c_1*t^2+c_2*t^4+...+c_5*t^
 
 
 ```{r,echo=FALSE}
-# for even term in t alpha and NGP plotting
+# all even terms and MSD increase linearly with time.
 ###############################################################################################################
 #Run ( data_import.R) file first 
 
@@ -314,7 +330,7 @@ Second, the linear regression is done as $MSD/t^2=c_0+c_1*t^2+c_2*t^4+...+c_5*t^
 #Run (optimizaed data import function.R) file first 
 
 
-alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS"){
+alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS",method="linear"){
   
   
   # import colmean data and do linear regression for alpha term 
@@ -334,19 +350,51 @@ alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP
   MSD.PS.g0=MSD.PS.g0/100
   library(foreach)
   
+  
+  ############################################################################
+  
+  if(method=="linear"){
+    
+    #MSD is increasing linearly with time. 
   alpha=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
-    (lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10))%>%confint(level=0.95))[2,]
+    (lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)+I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20))%>%confint(level=0.95))[2,]
   }
   Rsquared=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
-     c(  ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$adj.rsquared,
-          ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$r.squared
+     c(  ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)+I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20)) )%>%summary%>%.$adj.rsquared,
+          ( lm(MSD.PS.g0[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)+I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20)) )%>%summary%>%.$r.squared
+        )
+}
+    
+  }else if(method=="frac"){
+   
+  
+  #MSD is increasing linearly with fractional power of time. 
+  alpha=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
+     (lm(MSD.PS.g0[,i]~-1+I(time^(3/2))+I(time^(7/2))+I(time^(11/2))+I(time^(15/2))+I(time^(19/2)))%>%confint(level=0.95))[2,]
+  }
+  Rsquared=foreach(i=2:(dim(MSD.PS.g0)[2]),.combine = rbind)%do%{
+     c(  
+       ( 
+       lm(MSD.PS.g0[,i]~-1+I(time^(3/2))+I(time^(7/2))+I(time^(11/2))+I(time^(15/2))+I(time^(19/2)) ) 
+          )%>%summary%>%.$adj.rsquared,
+          ( 
+            lm(MSD.PS.g0[,i]~-1+I(time^(3/2))+I(time^(7/2))+I(time^(11/2))+I(time^(15/2))+I(time^(19/2)) ) 
+               )  %>%summary%>%.$r.squared
         )
   }
+ 
+  }else{
+    print("Enter a valid method like linear or frac.")
+  }
+  
+  
   
   ###############################################################
   
   #first transform the matrix then turn it into a vector 
   alpha=alpha%>%t%>%as.vector
+  
+ 
   # combine alpha and temp into a data frame 
   temp=rep(temp,each=2)
   alpha=data.frame(alpha,temp,Rsquared,row.names = NULL)
@@ -368,6 +416,8 @@ alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP
     xlab("Temperature")+ylab("Curvature of MSD/Temperature ")
   p3=ggplot(data=alpha, aes(y=Rsquared,x=temp))+geom_point(color="orange")+
     xlab("Temperature")+ylab("R^2 and adj R^2")
+  
+  
   ####################################################################################################################
   
   #NGP 
@@ -403,17 +453,21 @@ alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP
   grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), ggplotGrob(p3), size = "first"))
   
   
-  
+  #return the plot. 
   
   
   
 }  
 
 
-# for all terms in t alpha and NGP plotting
-#################################################################################################################
+## End of function
+ 
 
 ```
+
+
+
+
 
 
 
@@ -422,16 +476,30 @@ alpha.even.ngp.plot=function(filename1="MSD.colmean.matrix.1.txt",filename2="NGP
 ### PS g0 alpha term all even orders (t^2 to t^20)
 
 ```{r}
-alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS",method="linear")
 
 ```
 
+### PS g0 alpha term fractional orders (t^(3/2) to t^(19/2)) 
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS",method="frac")
+
+```
 ## PMMA 
 
 ### PMMA g0 alpha term even orders (t^2 to t^20)
 
 ```{r}
 alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
+
+```
+
+
+### PMMA g0 alpha term fractional orders (t^(3/2) to t^(19/2))
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA",method="frac")
 
 ```
 
@@ -445,6 +513,12 @@ alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", 
 ```
 
 
+### PIB g0 alpha term fractional orders (t^(3/2) to t^(19/2))
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", temp=c(150,175,200,225,250,275,300,350,400),polymer="PIB",method = "frac")
+
+```
 
 ## PS
 
@@ -452,6 +526,13 @@ alpha.even.ngp.plot(filename1="MSD.colmean.matrix.1.txt",filename2="NGP.1.txt", 
 
 ```{r}
 alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS")
+
+```
+
+### PS g2 alpha term all fractional orders
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(200,250,300,350,400,450,500,550,600),polymer="PS",method="frac")
 
 ```
 
@@ -463,6 +544,14 @@ alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", tem
 alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA")
 
 ```
+
+### PMMA g2 alpha term fractional orders 
+
+```{r}
+alpha.even.ngp.plot(filename1="MSD.COM.colmean.1.txt",filename2="NGP.1.txt", temp=c(320,345,370,395,420,445,470,500,550,600),polymer="PMMA",method="frac")
+
+```
+
 
 ## PIB 
 
@@ -512,12 +601,18 @@ atom.type.plot=function(temp, polymer, type){
   library(foreach)
   
   alpha=foreach(i=2:(dim(MSD)[2]),.combine = rbind)%do%{
-    (lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10))%>%confint(level=0.95))[2,]
+    (lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)+I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20))%>%confint(level=0.95))[2,]
   }
   
   Rsquared=foreach(i=2:(dim(MSD)[2]),.combine = rbind)%do%{
-     c(  ( lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$adj.rsquared,
-          ( lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)) )%>%summary%>%.$r.squared
+     c(  ( 
+       lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)
+          +I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20)
+          ))%>%summary%>%.$adj.rsquared,
+          (
+            lm(MSD[,i]/time^2~I(time^2)+I(time^4)+I(time^6)+I(time^8)+I(time^10)
+               +I(time^12)+I(time^14)+I(time^16)+I(time^18)+I(time^20)
+               ))%>%summary%>%.$r.squared
         )
   }
   #first transform the matrix then turn it into a vector 
