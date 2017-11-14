@@ -242,12 +242,24 @@ MSD_scaled_g1=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
   return( timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time) )
 }
 
-MSD_scaled_g1(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
-              ,num_mol=64,molecule_atoms=602,molecule_monomers=40 ,monomer_atoms=15
-              ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
-              ,xhigh=72.3695
-              ,xlow=2.86271
-              ,yhigh=75.7675
-              ,ylow=-0.535315
-              ,zhigh=73.6408
-              ,zlow=1.59139)
+# example use 
+# MSD_scaled_g1(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)
+#               ,num_mol=64,molecule_atoms=602,molecule_monomers=40 ,monomer_atoms=15
+#               ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
+#               ,xhigh=72.3695
+#               ,xlow=2.86271
+#               ,yhigh=75.7675
+#               ,ylow=-0.535315
+#               ,zhigh=73.6408
+#               ,zlow=1.59139)
+
+# MSD_scaled_g1(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=640
+#                             ,num_mol=64,molecule_atoms=602,molecule_monomers=40 ,monomer_atoms=15
+#                             ,atom_type=1:10,atom_type_mass=c(1.0079,12.011,12.011,12.011,15.9999,15.9999,12.011,12.011,1.0079,12.011)
+#                             ,xhigh=72.3695
+#                             ,xlow=2.86271
+#                             ,yhigh=75.7675
+#                             ,ylow=-0.535315
+#                             ,zhigh=73.6408
+#                             ,zlow=1.59139)
+
