@@ -84,7 +84,7 @@ MSD_scaled_g1_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
     }
     
     
-  }else if(polymer=="PS"){
+  }else if(polymer %in% c("PS","PS_20") ){
     
     monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms,edge_atoms=c(17,642,643,644,0)){
       
