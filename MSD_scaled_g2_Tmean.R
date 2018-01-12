@@ -148,7 +148,7 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   # This the most outerloop per se. So that we could use foreach to do things in parallel. 
   
   #================================= This function assumes that the dataset contains a mol column. ==================================# 
-  foreach_datas_lags_para_msd=function(data,lag_vec,mol_id,core_num=core_num){
+  foreach_datas_lags_para_msd=function(data,lag_vec,mol_id,mol_min,core_num=core_num){
     registerDoParallel(cores = core_num)
     para_foreach_result=foreach(i=seq_along(mol_id),.combine = rbind)%dopar%{
       mol_center_of_mass=data[mol==mol_id[i],]%>%vapply_lags_msd(lag_vec = lag_vec)
@@ -173,7 +173,7 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
     # reorder the data first by mol then by the timestep
     center_of_mass%>%setkey(mol,time_step)
     # calculate the time average for MSD for each mol. 
-    MSD_g2_empty_matrix=center_of_mass[,.(mol,xu,yu,zu)]%>%foreach_datas_lags_para_msd(lag_vec = 1:timestep,mol = 1:num_mol,core_num = core_num)
+    MSD_g2_empty_matrix=center_of_mass[,.(mol,xu,yu,zu)]%>%foreach_datas_lags_para_msd(lag_vec = 1:timestep,mol_id = mol_min:num_mol,core_num = core_num)
     
     return(MSD_g2_empty_matrix)
   } 
@@ -181,6 +181,8 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   #########################################################################################################
   # mass of molecule 1
   totmass= atom.300.1_fread[time_step==1,]%>%.[mol==1,.(mass)]%>%sum
+  # calculate mol_min number
+  mol_min=atom.300.1_fread[time_step==1,.(mol)]%>%min()
 
   # do it for every mol and combine the results by rbind
   
@@ -210,7 +212,7 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   timeRecordB(output_message = "MSD average Write")
   
   
-  
+  gc()
   return(timeRecordR(ignore=0.1)%>%filter(output_message!="None")%>%select(output_message,run_time) )
   
 }
@@ -221,7 +223,7 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
 source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
 MSD_scaled_g2_one_temp_Tmean(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
                              ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)
-                             ,polymer="PS_20",core_num=4)
+                            ,core_num=4)
 #  stopping a parallel computation could only be done from htop. Not from the Rstudio.
 
 
