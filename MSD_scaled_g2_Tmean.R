@@ -122,7 +122,7 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   
   #########################################################################################################
   
- 
+  
   
   #########################################################################################################
   # define functions to calculate time average 
@@ -167,13 +167,13 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   
   ####################################################################################################################
   
-  MSD_g2_matrix=function(data,timestep,num_mol,totmass,mol_min,core_num){
+  MSD_g2_matrix=function(data,timestep,totmass,mol_min,mol_max,core_num){
     # calculate the center of mass for every timestep and every mol 
     center_of_mass=data[,.(xu=sum(xu*mass)/totmass,yu=sum(yu*mass)/totmass,zu=sum(zu*mass)/totmass),by=.(mol,time_step)]
     # reorder the data first by mol then by the timestep
     center_of_mass%>%setkey(mol,time_step)
     # calculate the time average for MSD for each mol. 
-    MSD_g2_empty_matrix=center_of_mass[,.(mol,xu,yu,zu)]%>%foreach_datas_lags_para_msd(lag_vec = 1:timestep,mol_id = mol_min:num_mol,core_num = core_num)
+    MSD_g2_empty_matrix=center_of_mass[,.(mol,xu,yu,zu)]%>%foreach_datas_lags_para_msd(lag_vec = 1:timestep,mol_id = mol_min:mol_max,core_num = core_num)
     
     return(MSD_g2_empty_matrix)
   } 
@@ -183,13 +183,14 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
   totmass= atom.300.1_fread[time_step==1,]%>%.[mol==1,.(mass)]%>%sum
   # calculate mol_min number
   mol_min=atom.300.1_fread[time_step==1,.(mol)]%>%min()
-
+  mol_max=atom.300.1_fread[time_step==1,.(mol)]%>%max()
+  
+  
   # do it for every mol and combine the results by rbind
   
   timeRecordB()
   
-  MSD.all.matrix=atom.300.1_fread%>%MSD_g2_matrix(timestep=timestep,num_mol=num_mol,totmass=totmass,core_num=core_num)
-  
+  MSD.all.matrix=atom.300.1_fread%>%MSD_g2_matrix(timestep=timestep,totmass=totmass,mol_min=mol_min,mol_max=mol_max,core_num=core_num)
   gc()                                                                     
   
   timeRecordB(output_message = paste("cores:",core_num,"total mols:",num_mol, "MSD matrix calculation"))
@@ -220,10 +221,10 @@ MSD_scaled_g2_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
 
 # example use. 
 # load the timeRecord functions from my github account.
-source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
-MSD_scaled_g2_one_temp_Tmean(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
-                             ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)
-                            ,core_num=4)
+# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+# MSD_scaled_g2_one_temp_Tmean(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
+#                              ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)
+#                             ,core_num=4)
 #  stopping a parallel computation could only be done from htop. Not from the Rstudio.
 
 
@@ -247,7 +248,7 @@ MSD_scaled_g2_Tmean=function(Path="~/Dropbox/lammps/",polymer="PS_20",temperatur
     # calculation for MSD
     MSD_scaled_g2_one_temp_Tmean(path=path,filename =filename
                                  ,molecule_atoms=molecule_atoms,num_mol=num_mol,
-                                 atom_type=atom_type,atom_type_mass=atom_type_mass,polymer=polymer,core_num=core_num )
+                                 atom_type=atom_type,atom_type_mass=atom_type_mass,core_num=core_num )
     
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message

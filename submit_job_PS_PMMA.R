@@ -37,3 +37,17 @@ MSD_g2(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),tim
 ## g1 MSD: you need different functions to add monomer id (edge atoms are added as monomer.id =0), but center of mass calculation and MSD calculation is the same once you have the monomer id.
 
 ## g2 MSD: you need the same function but different atom_type and masses to do it. (plus, the problem with mol starts at 0 or 1)/Solved
+
+
+
+
+# test each function run before you launch to do it for all temperatures. 
+
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_scaled_g0_revised.R")
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_scaled_g1_revised.R")
+
+MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20))
+MSD_scaled_g1(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
+                     ,molecule_atoms=645,num_mol=40,molecule_monomers=40
+                     ,monomer_atoms=16,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079) )
+                   

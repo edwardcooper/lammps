@@ -125,13 +125,13 @@ MSD_unscaled_g0_one_temp_Tmean=function(path="~/Dropbox/lammps/PMMA_big/atom300"
 
 
 # example use 
-# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
-# MSD_unscaled_g0_one_temp_Tmean(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom.300_1.txt",core_num = 10)
+ source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+ MSD_unscaled_g0_one_temp_Tmean(path="~/Dropbox/lammps/PMMA_big/atom300",filename="atom.300_1.txt",core_num = 10)
 # stopping a parallel computation could only be done from htop. Not from the Rstudio.
 
 
 ## echo the current calculation and percentage of entire calculation.  
-MSD_unscaled_g0_Tmean=function(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20),core_num=10){
+MSD_unscaled_g0_Tmean=function(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),core_num=10){
   library(magrittr)
   source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
   # the loop to calculate the same thing in all temepratures defined above. 
@@ -157,4 +157,4 @@ MSD_unscaled_g0_Tmean=function(Path="~/Dropbox/lammps/",polymer="PS_20",temperat
 }
 
 # example use
-MSD_unscaled_g0_Tmean(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),core_num = 10)
+# MSD_unscaled_g0_Tmean(Path="~/Dropbox/lammps/",polymer="PMMA_big",temperatures=seq(300,600,by=20),core_num = 10)

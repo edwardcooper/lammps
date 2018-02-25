@@ -139,7 +139,7 @@ MSD_scaled_g1_one_temp_Tmean=function(path="~/Dropbox/lammps/PS_20/atom300",file
     }
     
     
-  }else if(polymer %in% c("PS","PS_20") ){
+  }else if(polymer %in% c("PS","PS_20","PS_20_long") ){
     
     monomer_gen=function(atom_id,molecule_atoms,molecule_monomers,monomer_atoms,edge_atoms=c(17,642,643,644,0)){
       
@@ -300,8 +300,8 @@ MSD_scaled_g1_Tmean=function(Path="~/Dropbox/lammps/",polymer="PS_20",temperatur
 }
 
 # example use
-MSD_scaled_g1_Tmean(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
-                    ,molecule_atoms=645,num_mol=40,molecule_monomers=40
-                    ,monomer_atoms=16,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)
-                    ,core_num=4)
+# MSD_scaled_g1_Tmean(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
+#                     ,molecule_atoms=645,num_mol=40,molecule_monomers=40
+#                     ,monomer_atoms=16,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)
+#                     ,core_num=4)
 

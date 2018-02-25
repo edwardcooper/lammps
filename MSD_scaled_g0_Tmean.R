@@ -181,4 +181,4 @@ MSD_scaled_g0_Tmean=function(Path="~/Dropbox/lammps/",polymer="PS_20",temperatur
 }
 
 # example use
-MSD_scaled_g0_Tmean(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20),core_num = 10)
+# MSD_scaled_g0_Tmean(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20),core_num = 10)

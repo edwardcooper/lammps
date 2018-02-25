@@ -3,8 +3,7 @@
 
 ### First define a function to do the calculation for one temeprature. 
 MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filename="atom.300_long2"){
-  # load the timeRecord functions from my github account.
-  source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+ 
   setwd(path)
   # record the time
   timeRecordB()
@@ -112,6 +111,8 @@ MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 
 
 # example use 
+# load the timeRecord functions from my github account.
+# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
 # MSD_scaled_g0_one_temp(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
 #                       )
 
@@ -119,6 +120,8 @@ MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 ## echo the current calculation and percentage of entire calculation.  
 MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures=seq(300,620,by=20)){
   library(magrittr)
+  # load the timeRecord functions from my github account.
+  source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
   # the loop to calculate the same thing in all temepratures defined above. 
   for (i in seq_along(temperatures)){
     # echo beginning of calculation
