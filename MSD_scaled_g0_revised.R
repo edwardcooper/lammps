@@ -112,8 +112,8 @@ MSD_scaled_g0_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 
 
 # example use 
-MSD_scaled_g0_one_temp(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
-                      )
+# MSD_scaled_g0_one_temp(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
+#                       )
 
 
 ## echo the current calculation and percentage of entire calculation.  
