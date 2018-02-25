@@ -130,7 +130,7 @@ MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
     filename=paste("atom.",temperatures[i],"_1",sep="")
     
     # calculation for MSD
-    MSD_scaled_g0_one_temp(path=path,filename =filename,xhigh=xhigh,xlow=xlow,yhigh=yhigh,ylow=ylow,zhigh=zhigh,zlow=zlow )
+    MSD_scaled_g0_one_temp(path=path,filename =filename )
     
     # echo end of calculation
     paste("End calculation of temperature:",temperatures[i],sep="")%>%message
