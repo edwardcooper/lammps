@@ -195,9 +195,9 @@ MSD_scaled_g2_one_temp=function(path="~/Dropbox/lammps/PMMA_long/atom300",filena
 
 # example use 
 # load the timeRecord functions from my github account.
-source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
-MSD_scaled_g2_one_temp(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
-                       ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)   )
+# source("https://raw.githubusercontent.com/edwardcooper/mlmodel_select/master/timeRecord_functions.R")
+# MSD_scaled_g2_one_temp(path="~/Dropbox/lammps/PS_20/atom300",filename="atom.300_1"
+#                        ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079)   )
 
 
 
