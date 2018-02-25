@@ -127,7 +127,7 @@ MSD_scaled_g0=function(Path="~/Dropbox/lammps/",polymer="PMMA_long",temperatures
     # set correct path for the data file
     path=paste(Path,"/", polymer,"/atom",temperatures[i], sep='')
     # find the correct file to read and calculate.
-    filename=paste("atom.",temperatures[i],"_long2",sep="")
+    filename=paste("atom.",temperatures[i],"_1",sep="")
     
     # calculation for MSD
     MSD_scaled_g0_one_temp(path=path,filename =filename,xhigh=xhigh,xlow=xlow,yhigh=yhigh,ylow=ylow,zhigh=zhigh,zlow=zlow )
