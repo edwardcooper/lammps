@@ -45,9 +45,13 @@ MSD_g2(Path="~/Dropbox/lammps/",polymer="PS",temperatures=seq(200,600,by=50),tim
 
 source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_scaled_g0_revised.R")
 source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_scaled_g1_revised.R")
+source("https://raw.githubusercontent.com/edwardcooper/lammps/master/MSD_scaled_g2_revised.R")
 
-MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20))
+MSD_scaled_g0(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
+              )
 MSD_scaled_g1(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
                      ,molecule_atoms=645,num_mol=40,molecule_monomers=40
                      ,monomer_atoms=16,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079) )
+MSD_scaled_g2(Path="~/Dropbox/lammps/",polymer="PS_20",temperatures=seq(200,520,by=20)
+             ,molecule_atoms=645,num_mol=40,atom_type=1:6,atom_type_mass=c(12.011,1.0079,12.011,12.011,12.011,1.0079))
                    
