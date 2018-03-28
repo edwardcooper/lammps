@@ -274,7 +274,7 @@ cv_predict_plot=function(data,newdata){
   graph=ggplot(data=data.melt,aes(x=(time),y=(value),colour=variable)) +geom_point(size=0.05)+
     geom_line(data=newdata.melt,aes(x=(time_steps),y=(value),color=variable))+
     ylab("MSD")+
-    ggtitle("PMMA g0 Tmean MSD vs time plot")
+    ggtitle("MSD cv predict vs true value.")
   return(graph)
 }
 
@@ -291,22 +291,10 @@ cv_predict_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq
   MSD.PS.g0=cbind(MSD.PS.g0,time_steps=timesteps)
   # change the time units to ps
   # change  the length unit to nm.
-  MSD.PS.g0=MSD.PS.g0
   library(foreach)
   colnames(MSD.PS.g0)=c(paste("T",temp,sep=""),"time_steps")
   
-  # #regular plot 
-  # ###########################################
-  # 
-  # MSD.PS.g0.melt=reshape2::melt(MSD.PS.g0,id.vars="time_steps")
-  # library(dplyr)
-  # 
-  # library(ggplot2)
-  # ggplot(data=MSD.PS.g0.melt,aes(x=time_steps,y=value,colour=variable)) +geom_line(size=0.5)+
-  #   ylab("MSD")+
-  #   ggtitle("PS g0 MSD vs time plot")
-  
-  
+
   index_list=caret::createFolds(timesteps, k = k, list = TRUE, returnTrain = FALSE)
   
   # this function assumes that the time_steps are at the end of the dataset. 
@@ -350,6 +338,8 @@ cv_predict_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq
     cv_performance_metrics=cv_performance_metrics%>%arrange(time_steps)
     # get rid of the time_steps variable for easier combination of data. 
     cv_performance_metrics=cv_performance_metrics%>%select(-time_steps)
+    
+    return(cv_performance_metrics)
   }
   
   # add time_steps variable after combining all temperature results. 
