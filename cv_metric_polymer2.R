@@ -83,11 +83,11 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
       
      
  
-      r_squared=1-mean((predict(regression_model,train_data)-train_data[,temperature])^2)/mean((mean(train_data[,temperature])-train_data[,temperature])^2)
+      r_squared=mean((predict(regression_model,train_data)-train_data[,temperature])^2)/mean((mean(train_data[,temperature])-train_data[,temperature])^2)
       prediction_msd=predict(regression_model,newdata=test_data)
       
       
-      predicted_r_squared=1-mean((prediction_msd-test_data[,temperature])^2)/mean(( test_data[,temperature]-mean(test_data[,temperature]) )^2)
+      predicted_r_squared=mean((prediction_msd-test_data[,temperature])^2)/mean(( test_data[,temperature]-mean(test_data[,temperature]) )^2)
       
       # all computation to do squared error comparison. 
       
@@ -100,7 +100,7 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
       prediction_msd_rousse=predict(regression_model_rousse,newdata=test_data%>%select(time_steps))
       variance_ratio_rousse=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_rousse-test_data[,temperature])^2)
       # reptation model performance 
-      regression_model_reptation=lm(train_data[,temperature]~I(time_steps^(1/2)),data=train_data )
+      regression_model_reptation=lm(train_data[,temperature]~I(time_steps^(1/4)),data=train_data )
       prediction_msd_reptation=predict(regression_model_reptation,newdata=test_data%>%select(time_steps))
       variance_ratio_reptation=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_reptation-test_data[,temperature])^2)
       

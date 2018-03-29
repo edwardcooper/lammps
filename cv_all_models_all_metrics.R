@@ -82,8 +82,8 @@ cv_metric_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq(
       library(magrittr)
       paste("temperature:",temperature,"Fold:",fold,sep="")%>%message
       
-      r_squared=regression_model%>%summary%>%.$r.squared
-      adj_r_squared=regression_model%>%summary%>%.$adj.r.squared
+      r_squared=1-regression_model%>%summary%>%.$r.squared
+      adj_r_squared=1-regression_model%>%summary%>%.$adj.r.squared
       
       
       coefficients_from_model=switch(method
@@ -98,7 +98,7 @@ cv_metric_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq(
       
       
       prediction_msd=predict(regression_model,newdata=test_data%>%select(time_steps))
-      predicted_r_squared=1-mean((prediction_msd-test_data[,temperature])^2)/mean(( test_data[,temperature]-mean(test_data[,temperature]) )^2)
+      predicted_r_squared=mean((prediction_msd-test_data[,temperature])^2)/mean(( test_data[,temperature]-mean(test_data[,temperature]) )^2)
       
       
       # all computation to do squared error comparison. 
@@ -112,7 +112,7 @@ cv_metric_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq(
       prediction_msd_rousse=predict(regression_model_rousse,newdata=test_data%>%select(time_steps))
       variance_ratio_rousse=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_rousse-test_data[,temperature])^2)
       # reptation model performance 
-      regression_model_reptation=lm(train_data[,temperature]~I(time_steps^(1/2)),data=train_data )
+      regression_model_reptation=lm(train_data[,temperature]~I(time_steps^(1/4)),data=train_data )
       prediction_msd_reptation=predict(regression_model_reptation,newdata=test_data%>%select(time_steps))
       variance_ratio_reptation=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_reptation-test_data[,temperature])^2)
       
