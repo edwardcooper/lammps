@@ -1,4 +1,4 @@
 # Codes for data analysis on molecular simulation data. 
-## Project to extract glass transition signal from atom position data.
+## Project to predict anomaly of polymer behavior from atom position data.
 
 
