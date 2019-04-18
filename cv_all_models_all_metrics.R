@@ -41,7 +41,7 @@ cv_metric_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq(
   # change  the length unit to nm.
   MSD.PS.g0=MSD.PS.g0
   library(foreach)
-  colnames(MSD.PS.g0)=c(paste("T",temp,sep=""),"time_steps")
+  colnames(MSD.PS.g0)=c(paste(temp,"K",sep=""),"time_steps")
   
   # #regular plot 
   # ###########################################
@@ -256,12 +256,11 @@ six_combined_plots=function(method="mixall"
 
 # cv predicted values plotting function. 
 
-cv_predict_plot=function(data,newdata){
+cv_predict_plot=function(data,newdata, temp){
   data=data%>%as.data.frame()
   data=data%>%filter(time>1)
   # add correct colname 
-  temp=seq(300,600,by=20)
-  colnames(data)=c("time",paste("T",temp,sep=""))
+  colnames(data)=c("time",paste(temp,"K",sep=""))
   
   
   #regular plot 
@@ -292,7 +291,7 @@ cv_predict_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq
   # change the time units to ps
   # change  the length unit to nm.
   library(foreach)
-  colnames(MSD.PS.g0)=c(paste("T",temp,sep=""),"time_steps")
+  colnames(MSD.PS.g0)=c(paste(temp,"K",sep=""),"time_steps")
   
 
   index_list=caret::createFolds(timesteps, k = k, list = TRUE, returnTrain = FALSE)
@@ -309,23 +308,30 @@ cv_predict_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq
       train_data=MSD.PS.g0[-index_fold,]
       
       # the order of the term is reflected in the name. 
+      # the order of the term is reflected in the name. 
       regression_model=switch(method,
                               mixall={ lm(train_data[,temperature]~I(time_steps)+I(time_steps^(1/2))+I(time_steps^(1/4)),data=train_data[,c(temperature,dim(train_data)[2])] ) }
                               ,rousse={ lm(train_data[,temperature]~I(time_steps^(1/2)),data=train_data[,c(temperature,dim(train_data)[2])] ) }
                               ,reptation={ lm(train_data[,temperature]~I(time_steps^(1/4)),data=train_data[,c(temperature,dim(train_data)[2])] ) }
                               ,einstein={ lm(train_data[,temperature]~I(time_steps),data=train_data[,c(temperature,dim(train_data)[2])] ) }
-                              ,rousse_einstein={ lm(train_data[,temperature]~I(time_steps^(1/2))+I(time_steps),data=train_data[,c(temperature,dim(train_data)[2])] ) }
+                              ,rousse_einstein={ lm(train_data[,temperature]~I(time_steps^(1/2))+I(time_steps),data=train_data[,c(temperature,dim(train_data)[2])]   ) }
                               ,rousse_reptation={ lm(train_data[,temperature]~I(time_steps^(1/2))+I(time_steps^(1/4)),data=train_data[,c(temperature,dim(train_data)[2])] ) }
                               ,reptation_einstein={ lm(train_data[,temperature]~I(time_steps^(1/4))+I(time_steps),data=train_data[,c(temperature,dim(train_data)[2])] ) }
+                              ,hinges={library(earth);earth(train_data[,temperature]~I(time_steps)+I(time_steps^(1/2))+I(time_steps^(1/4)),data=train_data[,c(temperature,dim(train_data)[2])] )}
+                              ,ns_splines={library(splines);lm(train_data[,temperature]~ns(I(time_steps^(1/2))+I(time_steps^(1/4))+I(time_steps)),data=train_data[,c(temperature,dim(train_data)[2])])}
+                              ,bs_splines={library(splines);lm(train_data[,temperature]~bs(I(time_steps^(1/2))+I(time_steps^(1/4))+I(time_steps)),data=train_data[,c(temperature,dim(train_data)[2])])}
+                              ,hinges2={library(earth);earth(train_data[,temperature]~I(time_steps^(1/4))+I(time_steps),data=train_data[,c(temperature,dim(train_data)[2])] )}
+                              ,ns_splines2={library(splines);lm(train_data[,temperature]~ns(I(time_steps^(1/2))+I(time_steps^(1/4))),data=train_data[,c(temperature,dim(train_data)[2])])}
+                              ,bs_splines2={library(splines);lm(train_data[,temperature]~bs(I(time_steps^(1/2))+I(time_steps^(1/4))),data=train_data[,c(temperature,dim(train_data)[2])])}
       )
       
       library(magrittr)
-      paste("temperature:",temperature,"Fold:",fold,sep="")%>%message
+      # paste("temperature:",temperature,"Fold:",fold,sep="")%>%message
       
       
-      paste("The number of data in test data:", dim(test_data)[1])%>%message
+      # paste("The number of data in test data:", dim(test_data)[1])%>%message
       
-      prediction_msd=predict(regression_model,newdata=test_data%>%select(time_steps))
+      prediction_msd=predict(regression_model,newdata=test_data)
       predicted_r_squared=1-mean((prediction_msd-test_data[,temperature])^2)/mean(( test_data[,temperature]-mean(test_data[,temperature]) )^2)
       
       #msd_name=paste("T",temp[temperature],sep="")
@@ -344,7 +350,7 @@ cv_predict_polymer=function(Path="~/Dropbox/lammps",polymer="PMMA_big", temp=seq
   
   # add time_steps variable after combining all temperature results. 
   all_temperatures_cv_metrics=cbind(all_temperatures_cv_metrics,time_steps=timesteps)
-  colnames(all_temperatures_cv_metrics)=c(paste("T",temp,sep=""),"time_steps")
+  colnames(all_temperatures_cv_metrics)=c(paste(temp,"K",sep=""),"time_steps")
   
   # return value of the entire function.   
   return(all_temperatures_cv_metrics)
