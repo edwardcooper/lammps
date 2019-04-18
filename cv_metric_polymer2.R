@@ -32,7 +32,7 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
    ,method="bs_splines"
   ,timesteps=500:4001
   ,k=10
- , target="variance_ratio_linear" 
+ , target="variance_ratio_einstein" 
   ){
   MSD.PS.g0=Data.import(Path=Path, filename = filename, temp=temp,polymer=polymer)
   # subset the dataset to contain only data for those timestep
@@ -74,6 +74,9 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
                               ,hinges={library(earth);earth(train_data[,temperature]~I(time_steps)+I(time_steps^(1/2))+I(time_steps^(1/4)),data=train_data[,c(temperature,dim(train_data)[2])] )}
                               ,ns_splines={library(splines);lm(train_data[,temperature]~ns(I(time_steps^(1/2))+I(time_steps^(1/4))+I(time_steps)),data=train_data[,c(temperature,dim(train_data)[2])])}
                               ,bs_splines={library(splines);lm(train_data[,temperature]~bs(I(time_steps^(1/2))+I(time_steps^(1/4))+I(time_steps)),data=train_data[,c(temperature,dim(train_data)[2])])}
+                              ,hinges2={library(earth);earth(train_data[,temperature]~I(time_steps^(1/4))+I(time_steps)+I(time_steps^(1/2)),nk=5,pmethod="exhaustive",data=train_data[,c(temperature,dim(train_data)[2])] )}
+                              ,ns_splines2={library(splines);lm(train_data[,temperature]~ns(I(time_steps^(1/2))+I(time_steps^(1/4))),data=train_data[,c(temperature,dim(train_data)[2])])}
+                              ,bs_splines2={library(splines);lm(train_data[,temperature]~bs(I(time_steps^(1/2))+I(time_steps^(1/4))),data=train_data[,c(temperature,dim(train_data)[2])])}
       )
       
       library(magrittr)
@@ -95,17 +98,21 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
       regression_model_linear=lm(train_data[,temperature]~I(time_steps),data=train_data )
       prediction_msd_linear=predict(regression_model_linear,newdata=test_data%>%select(time_steps))
       variance_ratio_einstein=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_linear-test_data[,temperature])^2)
+      modified_rsquares_einstein = 1 - variance_ratio_einstein
       # Rousse model performance
       regression_model_rousse=lm(train_data[,temperature]~I(time_steps^(1/2)),data=train_data )
       prediction_msd_rousse=predict(regression_model_rousse,newdata=test_data%>%select(time_steps))
       variance_ratio_rousse=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_rousse-test_data[,temperature])^2)
+      modified_rsquares_rousse = 1 - variance_ratio_rousse
       # reptation model performance 
       regression_model_reptation=lm(train_data[,temperature]~I(time_steps^(1/4)),data=train_data )
       prediction_msd_reptation=predict(regression_model_reptation,newdata=test_data%>%select(time_steps))
       variance_ratio_reptation=sum((prediction_msd-test_data[,temperature])^2) /sum((prediction_msd_reptation-test_data[,temperature])^2)
+      modified_rsquares_reptation = 1 - variance_ratio_reptation
       
       cv_metrics=c(r_squared,predicted_r_squared
                    ,variance_ratio_einstein,variance_ratio_rousse,variance_ratio_reptation
+                   ,modified_rsquares_einstein,modified_rsquares_rousse,modified_rsquares_reptation
                    ,temp[temperature])
    }
  
@@ -123,6 +130,7 @@ Data.import=function(Path="~/Dropbox/lammps" , filename = "MSD.colmean.matrix.1.
   all_temperatures_cv_metrics=all_temperatures_cv_metrics%>%as.data.frame()
   colnames(all_temperatures_cv_metrics)=c("r_squared","predicted_r_squared"
                                           ,"variance_ratio_einstein","variance_ratio_rousse","variance_ratio_reptation"
+                                          ,"modified_rsquares_einstein","modified_rsquares_rousse","modified_rsquares_reptation"
                                           ,"temperature")
   all_temperatures_cv_metrics=all_temperatures_cv_metrics[,c("temperature",target)]
   
@@ -225,4 +233,26 @@ four_combined_plots=function(method="mixall"
 # 
 # 
 # four_combined_plots(method="bs_splines",timesteps=200:4001  ,polymer="PS_20",temp=seq(200,500,by=20) ,k=5 )
+
+
+two_combined_plots = function(method="mixall"
+                              ,timesteps=200:4001
+                              ,polymer="PS_20"
+                              ,temp=seq(200,500,by=20)
+                              ,k=10  
+                              ,variance_variables=c("variance_ratio_einstein","variance_ratio_rousse","variance_ratio_reptation")
+                              ){
+  pmma_variance_ratio_g0=cv_metric_polymer2(Path="~/Dropbox/lammps",polymer=polymer, temp=temp,filename="MSD.g0.colmean.Tmean.1.txt"
+                                            ,method=method,timesteps=timesteps,k=k,target=variance_variables )
+  
+  
+  pmma_variance_ratio_g1=cv_metric_polymer2(Path="~/Dropbox/lammps",polymer=polymer, temp=temp,filename="MSD.g1.colmean.Tmean.1.txt"
+                                            ,method=method,timesteps=timesteps,k=k,target=variance_variables )
+  
+  library(gridExtra)
+  final_combined_plot=grid.arrange(pmma_variance_ratio_g0,pmma_variance_ratio_g1,nrow=2)
+  
+  return(final_combined_plot)
+                                
+                              }
                    
